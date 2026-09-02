@@ -1,0 +1,87 @@
+import React, { useState } from 'react';
+import { AppProvider } from './context/AppContext';
+import { Navbar, TabType } from './components/Navbar';
+import { DashboardView } from './components/tabs/DashboardView';
+import { CareerPathwayView } from './components/tabs/CareerPathwayView';
+import { CollegeSearchView } from './components/tabs/CollegeSearchView';
+import { FinalFiveView } from './components/tabs/FinalFiveView';
+import { TimelineView } from './components/tabs/TimelineView';
+import { ProfileView } from './components/tabs/ProfileView';
+import { ResumeBuilderView } from './components/tabs/ResumeBuilderView';
+import { EssayStudioView } from './components/tabs/EssayStudioView';
+import { CampusVisitsView } from './components/tabs/CampusVisitsView';
+import { GraduationCap, Heart, Sparkles } from 'lucide-react';
+
+const AppContent: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<TabType>('dashboard');
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-900">
+      {/* Top Navigation */}
+      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+
+      {/* Main Content Area */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-16">
+        {activeTab === 'dashboard' && <DashboardView setActiveTab={setActiveTab} />}
+        {activeTab === 'career_pathways' && <CareerPathwayView />}
+        {activeTab === 'colleges' && <CollegeSearchView setActiveTab={setActiveTab} />}
+        {activeTab === 'final_five' && <FinalFiveView setActiveTab={setActiveTab} />}
+        {activeTab === 'timeline' && <TimelineView />}
+        {activeTab === 'profile' && <ProfileView />}
+        {activeTab === 'resume' && <ResumeBuilderView />}
+        {activeTab === 'essays' && <EssayStudioView />}
+        {activeTab === 'campus_visits' && <CampusVisitsView />}
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-white border-t border-slate-200 py-8 print:hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <div className="flex items-center space-x-2">
+            <div className="w-6 h-6 rounded-lg bg-brand-600 flex items-center justify-center text-white font-bold text-xs">
+              <GraduationCap className="w-3.5 h-3.5" />
+            </div>
+            <span className="font-bold text-slate-900">PathPilot</span>
+            <span>— High School Junior College Admissions & Pre-Med / CRNA Accelerator</span>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            <button 
+              onClick={() => setActiveTab('dashboard')} 
+              className="hover:text-brand-600 transition-colors"
+            >
+              Dashboard
+            </button>
+            <button 
+              onClick={() => setActiveTab('career_pathways')} 
+              className="hover:text-brand-600 transition-colors"
+            >
+              MD vs CRNA
+            </button>
+            <button 
+              onClick={() => setActiveTab('colleges')} 
+              className="hover:text-brand-600 transition-colors"
+            >
+              College Matcher
+            </button>
+            <button 
+              onClick={() => setActiveTab('final_five')} 
+              className="hover:text-brand-600 transition-colors"
+            >
+              Final 5 Package
+            </button>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export function App() {
+  return (
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
+  );
+}
+
+export default App;

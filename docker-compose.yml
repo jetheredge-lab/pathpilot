@@ -1,0 +1,57 @@
+# PathPilot — self-contained stack.
+#
+# Designed to run alongside the tv-tracker stack on the same host without
+# collisions: distinct container/volume names, its own cloudflared tunnel,
+# and host ports that do not overlap tv-tracker (4000, 5432).
+#
+#   web  -> nginx serving the built SPA, proxying /api to the backend
+#   api  -> Node/SQLite sync service (identity via Cloudflare Access)
+#   cloudflared -> exposes the site at pathpilot.meetiqpro.ai (optional profile)
+
+services:
+  api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: pathpilot_api
+    restart: always
+    environment:
+      PORT: 4100
+      NODE_ENV: production
+      DB_PATH: /app/data/pathpilot.db
+      # Cloudflare Access identity verification (required in production).
+      CF_ACCESS_TEAM_DOMAIN: "${CF_ACCESS_TEAM_DOMAIN}"
+      CF_ACCESS_AUD: "${CF_ACCESS_AUD}"
+    volumes:
+      - pathpilot_data:/app/data
+    expose:
+      - "4100"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    container_name: pathpilot_web
+    restart: always
+    ports:
+      # Host port 8080 -> container 80. Reach the app on the LAN at
+      # http://<windows-host>:8080 and via the tunnel publicly.
+      - "8080:80"
+    depends_on:
+      - api
+
+  # Public HTTPS via Cloudflare Tunnel. Enable with:  --profile cloudflare
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: pathpilot_cloudflared
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      TUNNEL_TOKEN: "${CLOUDFLARE_TUNNEL_TOKEN}"
+    depends_on:
+      - web
+    profiles:
+      - cloudflare
+
+volumes:
+  pathpilot_data:

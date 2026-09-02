@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+server/node_modules/
+
+# Build output
+dist/
+server/dist/
+
+# Runtime data (SQLite database + WAL files)
+server/data/
+*.db
+*.db-shm
+*.db-wal
+
+# Secrets / local env
+.env
+.env.local
+
+# OS / editor
+.DS_Store
+*.log
+npm-debug.log*
