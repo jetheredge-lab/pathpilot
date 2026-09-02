@@ -19,7 +19,11 @@ services:
       PORT: 4100
       NODE_ENV: production
       DB_PATH: /app/data/pathpilot.db
-      # Cloudflare Access identity verification (required in production).
+      # When true, everyone shares ONE household portfolio (recommended for a
+      # family collaborating on a single student). When false, each Cloudflare
+      # Access identity gets its own private document.
+      SHARED_PORTFOLIO: "${SHARED_PORTFOLIO:-false}"
+      # Cloudflare Access identity verification (used only in per-user mode).
       CF_ACCESS_TEAM_DOMAIN: "${CF_ACCESS_TEAM_DOMAIN}"
       CF_ACCESS_AUD: "${CF_ACCESS_AUD}"
     volumes:
