@@ -11,21 +11,28 @@ import type { Request, Response, NextFunction } from 'express';
 // the app is still fully usable offline.
 
 const TEAM_DOMAIN = process.env.CF_ACCESS_TEAM_DOMAIN; // e.g. myteam.cloudflareaccess.com
-const AUD = process.env.CF_ACCESS_AUD; // Access application "Audience" (AUD) tag
+const AUD = process.env.CF_ACCESS_AUD; // Access application "Audience" (AUD) tag — optional
 const DEV_EMAIL = (process.env.DEV_IDENTITY_EMAIL ?? 'dev@local').toLowerCase();
 
-const accessEnabled = Boolean(TEAM_DOMAIN && AUD);
+// Verification turns on as soon as we know the team domain. The AUD tag is an
+// optional extra check ("token was issued for THIS app"); when it's absent we
+// still verify the signature + issuer and trust the email claim, since the
+// Access policy at the edge already controls who may reach this service.
+const accessEnabled = Boolean(TEAM_DOMAIN);
 
 const jwks = accessEnabled
   ? createRemoteJWKSet(new URL(`https://${TEAM_DOMAIN}/cdn-cgi/access/certs`))
   : null;
 
 if (accessEnabled) {
-  console.log(`[auth] Cloudflare Access verification enabled for team ${TEAM_DOMAIN}`);
+  console.log(
+    `[auth] Cloudflare Access verification enabled for team ${TEAM_DOMAIN}` +
+      (AUD ? ' (with AUD audience check)' : ' (no AUD set — audience check skipped)'),
+  );
 } else {
   console.warn(
     `[auth] Cloudflare Access NOT configured — using dev identity "${DEV_EMAIL}". ` +
-      'Set CF_ACCESS_TEAM_DOMAIN and CF_ACCESS_AUD in production.',
+      'Set CF_ACCESS_TEAM_DOMAIN in production.',
   );
 }
 
@@ -51,10 +58,11 @@ export async function requireIdentity(
   }
 
   try {
-    const { payload } = await jwtVerify(token, jwks, {
+    const verifyOpts: { issuer: string; audience?: string } = {
       issuer: `https://${TEAM_DOMAIN}`,
-      audience: AUD,
-    });
+    };
+    if (AUD) verifyOpts.audience = AUD;
+    const { payload } = await jwtVerify(token, jwks, verifyOpts);
     const email = (payload.email as string | undefined) ?? (payload.sub as string | undefined);
     if (!email) {
       res.status(401).json({ error: 'No identity in Cloudflare Access token' });
