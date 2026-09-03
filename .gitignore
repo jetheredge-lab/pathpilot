@@ -16,6 +16,9 @@ server/data/
 .env
 .env.local
 
+# Local Claude Code settings (per-machine permission state)
+.claude/settings.local.json
+
 # OS / editor
 .DS_Store
 *.log
