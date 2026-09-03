@@ -9,6 +9,7 @@ import {
   requireAuth,
   type AuthedRequest,
 } from '../auth.js';
+import { entitlementActive } from '../entitlement.js';
 
 export const authRouter = Router();
 
@@ -25,6 +26,7 @@ function publicUser(u: { id: string; email: string; emailVerified: boolean; plan
     emailVerified: u.emailVerified,
     plan: u.plan,
     entitlementExpiresAt: u.entitlementExpiresAt,
+    active: entitlementActive(u),
   };
 }
 

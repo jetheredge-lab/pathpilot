@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Compass, 
   GraduationCap, 
@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
+import { getBillingStatus, startCheckout, openBillingPortal } from '../api/billing';
 import { Modal } from './common/Modal';
 
 export type TabType = 
@@ -54,7 +55,25 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
     deleteStudent
   } = useApp();
 
-  const { user, logout, deleteAccount } = useAuth();
+  const { user, logout, deleteAccount, refresh } = useAuth();
+
+  const [billing, setBilling] = useState<{ enabled: boolean; hasCustomer: boolean }>({ enabled: false, hasCustomer: false });
+  const isPro = !!user?.active;
+
+  // Load billing availability, and refresh entitlement after returning from
+  // Stripe Checkout (?upgraded=1) — the webhook may land a beat after redirect.
+  useEffect(() => {
+    getBillingStatus().then((s) => setBilling({ enabled: s.enabled, hasCustomer: s.hasCustomer }));
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('upgraded') === '1') {
+      const bump = () => { refresh(); getBillingStatus().then((s) => setBilling({ enabled: s.enabled, hasCustomer: s.hasCustomer })); };
+      setTimeout(bump, 1500);
+      setTimeout(bump, 4000);
+      params.delete('upgraded');
+      const q = params.toString();
+      window.history.replaceState({}, '', window.location.pathname + (q ? `?${q}` : ''));
+    }
+  }, [refresh]);
 
   const syncMeta: Record<typeof syncStatus, { label: string; dot: string; text: string }> = {
     local: { label: 'Local only', dot: 'bg-slate-400', text: 'text-slate-500' },
@@ -201,6 +220,27 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
                 <span className="hidden sm:inline">Load Sample Profile</span>
               </button>
 
+              {/* Upgrade / Pro */}
+              {billing.enabled && !isPro && (
+                <button
+                  onClick={async () => { const err = await startCheckout(); if (err) alert(err); }}
+                  className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-sm transition-colors"
+                  title="Unlock the full RoundsAhead"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Upgrade</span>
+                </button>
+              )}
+              {isPro && (
+                <span
+                  className="hidden sm:flex items-center gap-1 text-[11px] font-bold px-2.5 py-1.5 rounded-lg text-amber-700 bg-amber-50 border border-amber-200"
+                  title="Pro — thank you"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Pro
+                </span>
+              )}
+
               {/* Cloud sync status */}
               <div
                 className="hidden sm:flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white"
@@ -319,6 +359,42 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
               </button>
             </div>
           </div>
+
+          {/* Plan / billing */}
+          {billing.enabled && (
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <h4 className="text-sm font-bold text-slate-800 mb-1 flex items-center space-x-2">
+                <Sparkles className="w-4 h-4 text-amber-500" />
+                <span>Plan</span>
+              </h4>
+              {isPro ? (
+                <>
+                  <p className="text-xs text-slate-600 mb-3">
+                    You're on <span className="font-semibold text-amber-700">RoundsAhead Pro</span>
+                    {user?.entitlementExpiresAt ? <> · access through {new Date(user.entitlementExpiresAt).toLocaleDateString()}</> : null}.
+                  </p>
+                  {billing.hasCustomer && (
+                    <button
+                      onClick={async () => { const err = await openBillingPortal(); if (err) alert(err); }}
+                      className="px-4 py-2 bg-slate-900 text-white text-xs font-semibold rounded-lg hover:bg-slate-800 transition-colors"
+                    >
+                      Manage billing &amp; receipts
+                    </button>
+                  )}
+                </>
+              ) : (
+                <>
+                  <p className="text-xs text-slate-600 mb-3">You're on the free plan. Upgrade to unlock the full RoundsAhead.</p>
+                  <button
+                    onClick={async () => { const err = await startCheckout(); if (err) alert(err); }}
+                    className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold rounded-lg hover:from-amber-600 hover:to-orange-600 transition-colors"
+                  >
+                    Upgrade to Pro
+                  </button>
+                </>
+              )}
+            </div>
+          )}
 
           {/* Students */}
           <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">

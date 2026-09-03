@@ -8,6 +8,7 @@ interface AuthContextType {
   signup: (email: string, password: string) => Promise<{ error?: string }>;
   logout: () => Promise<void>;
   deleteAccount: () => Promise<boolean>;
+  refresh: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -54,8 +55,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return ok;
   }, []);
 
+  const refresh = useCallback(async () => {
+    const me = await apiMe();
+    setUser(me);
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, deleteAccount }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout, deleteAccount, refresh }}>
       {children}
     </AuthContext.Provider>
   );

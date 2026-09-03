@@ -26,7 +26,8 @@ model User {
   googleId String? @unique
   appleId  String? @unique
 
-  // Entitlement (Phase 9 fills this in via Stripe webhooks).
+  // Billing / entitlement (Phase 9, set via Stripe webhooks).
+  stripeCustomerId     String?   @unique
   plan                 String    @default("free") // "free" | "paid"
   entitlementExpiresAt DateTime?
 

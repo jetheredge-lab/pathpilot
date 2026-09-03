@@ -9,6 +9,7 @@ export interface AuthUser {
   emailVerified: boolean;
   plan: string;
   entitlementExpiresAt: string | null;
+  active: boolean;
 }
 
 interface AuthResult {
