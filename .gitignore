@@ -12,6 +12,9 @@ server/data/
 *.db-shm
 *.db-wal
 
+# Database backups
+backups/
+
 # Secrets / local env
 .env
 .env.local
