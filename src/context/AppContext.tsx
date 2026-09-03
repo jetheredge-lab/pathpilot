@@ -11,6 +11,7 @@ import { COLLEGES_DATABASE } from '../data/colleges';
 import { DEFAULT_TIMELINE_TASKS } from '../data/timelineDefaults';
 import { SAMPLE_STUDENT_PROFILE, SAMPLE_FINAL_FIVE, SAMPLE_ESSAYS } from '../data/sampleProfile';
 import { fetchRemoteState, saveRemoteState } from '../api/sync';
+import { computeReadinessScore } from '../lib/readiness';
 
 // Backend sync status, surfaced in the UI so the user knows their data is safe.
 //  - 'local'   : running on local data only (backend not reached yet / offline)
@@ -380,37 +381,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Analytics
   const completedTasksCount = timelineTasks.filter(t => t.completed).length;
-  
-  // Calculate holistic junior year readiness score (0-100)
-  const calculateReadinessScore = (): number => {
-    let score = 0;
-    // 1. Academics & GPA set (max 20 pts)
-    if (profile.unweightedGpa >= 3.5) score += 15;
-    if (profile.weightedGpa >= 4.0) score += 5;
-    
-    // 2. Testing path (max 15 pts)
-    if (profile.satScore || profile.actScore || profile.psatScore) score += 15;
-    
-    // 3. Clinical & Volunteer hours (max 20 pts)
-    if (profile.clinicalHours >= 50) score += 15;
-    else if (profile.clinicalHours > 10) score += 10;
-    if (profile.communityServiceHours >= 40) score += 5;
 
-    // 4. Extracurriculars & Leadership (max 15 pts)
-    if (profile.extracurriculars.length >= 3) score += 15;
-    else if (profile.extracurriculars.length >= 1) score += 8;
-
-    // 5. Final 5 Schools Selected (max 15 pts)
-    if (finalFive.length === 5) score += 15;
-    else score += finalFive.length * 3;
-
-    // 6. Essay Drafted (max 15 pts)
-    if (essays.length > 0) score += 15;
-
-    return Math.min(100, Math.round(score));
-  };
-
-  const readinessScore = calculateReadinessScore();
+  // Holistic junior-year readiness score (0-100). Scoring rubric lives in a
+  // pure, unit-tested function — see src/lib/readiness.ts.
+  const readinessScore = computeReadinessScore(profile, finalFive.length, essays.length);
 
   const finalFiveCompletionPercent = (collegeId: string): number => {
     const item = finalFive.find(f => f.collegeId === collegeId);

@@ -141,7 +141,7 @@ export const CollegeSearchView: React.FC<CollegeSearchViewProps> = ({ setActiveT
               Pre-Med & Direct-Entry BSN College Research
             </h1>
             <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl">
-              Every college is dynamically categorized as <span className="text-emerald-600 font-bold">Likely/Safety</span>, <span className="text-blue-600 font-bold">Target</span>, or <span className="text-rose-600 font-bold">Reach</span> based on your son's GPA ({profile.unweightedGpa.toFixed(2)}) and SAT ({profile.satScore || '1390'}).
+              Every college is dynamically categorized as <span className="text-emerald-600 font-bold">Likely/Safety</span>, <span className="text-blue-600 font-bold">Target</span>, or <span className="text-rose-600 font-bold">Reach</span> based on your GPA ({profile.unweightedGpa.toFixed(2)}) and SAT ({profile.satScore || '1390'}).
             </p>
           </div>
 
