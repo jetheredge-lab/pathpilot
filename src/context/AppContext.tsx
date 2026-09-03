@@ -151,9 +151,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCampusVisits(b.campusVisits);
   };
 
+  // Default-task ids are the same constants for everyone, but each task row is
+  // per-student with a globally-unique id, so seed every student with fresh ids.
+  const freshDefaultTasks = (): TimelineTask[] =>
+    DEFAULT_TIMELINE_TASKS.map((t) => ({ ...t, id: `${t.id}_${Math.random().toString(36).slice(2, 10)}` }));
+
   const seedBundle = (): Partial<StudentBundle> => ({
     profile: { ...defaultEmptyProfile, fullName: '' } as StudentProfile,
-    timelineTasks: DEFAULT_TIMELINE_TASKS,
+    timelineTasks: freshDefaultTasks(),
   });
 
   // Initial load: fetch the account's students, then the selected student's data.
@@ -211,7 +216,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const addStudent = async (name = 'New student') => {
     setSyncStatus('syncing');
-    const b = await createStudent({ profile: { ...defaultEmptyProfile, fullName: name } as StudentProfile, timelineTasks: DEFAULT_TIMELINE_TASKS });
+    const b = await createStudent({ profile: { ...defaultEmptyProfile, fullName: name } as StudentProfile, timelineTasks: freshDefaultTasks() });
     if (b) {
       applyBundle(b);
       setCurrentStudentId(b.profile.id);
@@ -441,7 +446,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       profile: SAMPLE_STUDENT_PROFILE,
       savedColleges: ['case_western', 'pitt', 'villanova', 'upenn', 'slu', 'emory', 'osu'],
       finalFive: SAMPLE_FINAL_FIVE,
-      timelineTasks: DEFAULT_TIMELINE_TASKS,
+      timelineTasks: freshDefaultTasks(),
       essays: SAMPLE_ESSAYS,
       campusVisits: [],
     };
@@ -454,7 +459,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       profile: defaultEmptyProfile,
       savedColleges: [],
       finalFive: [],
-      timelineTasks: DEFAULT_TIMELINE_TASKS.map((t) => ({ ...t, completed: false })),
+      timelineTasks: freshDefaultTasks().map((t) => ({ ...t, completed: false })),
       essays: [],
       campusVisits: [],
     };
