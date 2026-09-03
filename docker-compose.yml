@@ -1,17 +1,35 @@
 # RoundsAhead — self-contained stack.
 #
-# Designed to run alongside the tv-tracker stack on the same host without
-# collisions: distinct container/volume names, its own cloudflared tunnel,
-# and host ports that do not overlap tv-tracker (4000, 5432).
+# Runs alongside the tv-tracker stack on the same host without collisions:
+# distinct container/volume names, its own Postgres (not published to the host,
+# so no clash with tv-tracker's 5432), its own cloudflared tunnel, and a host
+# web port (8080) that does not overlap tv-tracker.
 #
-#   web  -> nginx serving the marketing landing page (/) + the SPA (/app),
-#           proxying /api to the backend
-#   api  -> Node/SQLite sync service (identity via Cloudflare Access)
-#   cloudflared -> exposes the site publicly (optional profile). Currently
-#                  routed to pathpilot.meetiqpro.ai; moves to roundsahead.com
-#                  once the production hosting is ready.
+#   postgres    -> RoundsAhead's database (internal only)
+#   api         -> Express + Prisma auth/sync service
+#   web         -> nginx serving the landing page (/) + SPA (/app), proxying /api
+#   cloudflared -> public HTTPS (optional profile)
 
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: roundsahead_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: roundsahead
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: roundsahead
+    volumes:
+      - roundsahead_pgdata:/var/lib/postgresql/data
+    # Internal only — reachable by the api container over the compose network.
+    expose:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U roundsahead"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   api:
     build:
       context: ./server
@@ -21,16 +39,13 @@ services:
     environment:
       PORT: 4100
       NODE_ENV: production
-      DB_PATH: /app/data/roundsahead.db
-      # When true, everyone shares ONE household portfolio (recommended for a
-      # family collaborating on a single student). When false, each Cloudflare
-      # Access identity gets its own private document.
-      SHARED_PORTFOLIO: "${SHARED_PORTFOLIO:-false}"
-      # Cloudflare Access identity verification (used only in per-user mode).
-      CF_ACCESS_TEAM_DOMAIN: "${CF_ACCESS_TEAM_DOMAIN}"
-      CF_ACCESS_AUD: "${CF_ACCESS_AUD}"
-    volumes:
-      - roundsahead_data:/app/data
+      DATABASE_URL: "postgresql://roundsahead:${POSTGRES_PASSWORD}@postgres:5432/roundsahead?schema=public"
+      JWT_SECRET: "${JWT_SECRET}"
+      # Set true once served exclusively over HTTPS (roundsahead.com).
+      COOKIE_SECURE: "${COOKIE_SECURE:-false}"
+    depends_on:
+      postgres:
+        condition: service_healthy
     expose:
       - "4100"
 
@@ -41,8 +56,7 @@ services:
     container_name: roundsahead_web
     restart: always
     ports:
-      # Host port 8080 -> container 80. Reach it on the LAN at
-      # http://<docker-host>:8080 and via the tunnel publicly.
+      # Host port 8080 -> container 80.
       - "8080:80"
     depends_on:
       - api
@@ -61,4 +75,4 @@ services:
       - cloudflare
 
 volumes:
-  roundsahead_data:
+  roundsahead_pgdata:

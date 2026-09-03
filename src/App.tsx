@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { AppProvider } from './context/AppContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthScreen } from './components/AuthScreen';
+import { Loader2 } from 'lucide-react';
 import { Navbar, TabType } from './components/Navbar';
 import { DashboardView } from './components/tabs/DashboardView';
 import { CareerPathwayView } from './components/tabs/CareerPathwayView';
@@ -76,11 +79,33 @@ const AppContent: React.FC = () => {
   );
 };
 
-export function App() {
+// Gates the app behind authentication: a loading state while the session is
+// restored, the auth screen when signed out, the app when signed in.
+const Gate: React.FC = () => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-brand-600" />
+      </div>
+    );
+  }
+
+  if (!user) return <AuthScreen />;
+
   return (
     <AppProvider>
       <AppContent />
     </AppProvider>
+  );
+};
+
+export function App() {
+  return (
+    <AuthProvider>
+      <Gate />
+    </AuthProvider>
   );
 }
 

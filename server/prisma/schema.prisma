@@ -1,0 +1,42 @@
+// RoundsAhead data model (Phase 2).
+//
+// Auth-first: a real users table with hashed passwords and entitlement fields.
+// App state is still stored as one JSON document per user for now — Phase 3
+// splits it into per-resource tables (student_profiles, saved_colleges, …).
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  emailVerified Boolean   @default(false)
+
+  // Entitlement (Phase 9 fills this in via Stripe webhooks).
+  plan                 String    @default("free") // "free" | "paid"
+  entitlementExpiresAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  appState AppState?
+
+  @@map("users")
+}
+
+model AppState {
+  userId    String   @id
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  data      Json     @default("{}")
+  updatedAt DateTime @updatedAt
+
+  @@map("app_states")
+}

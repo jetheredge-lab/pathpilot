@@ -1,76 +1,74 @@
-import { createRemoteJWKSet, jwtVerify } from 'jose';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import type { Request, Response, NextFunction } from 'express';
 
-// Identity comes from Cloudflare Access, which authenticates the user at the
-// edge and forwards a signed JWT in the `Cf-Access-Jwt-Assertion` header.
-// We verify that JWT against the team's public keys and trust the email
-// claim inside it — so this service needs no passwords of its own.
-//
-// When the Cloudflare env vars are absent (local development, where nothing
-// sits in front of the API), we fall back to a fixed development identity so
-// the app is still fully usable offline.
+// ── Configuration ───────────────────────────────────────────────────
+const IS_PROD = process.env.NODE_ENV === 'production';
 
-const TEAM_DOMAIN = process.env.CF_ACCESS_TEAM_DOMAIN; // e.g. myteam.cloudflareaccess.com
-const AUD = process.env.CF_ACCESS_AUD; // Access application "Audience" (AUD) tag — optional
-const DEV_EMAIL = (process.env.DEV_IDENTITY_EMAIL ?? 'dev@local').toLowerCase();
+// JWT signing secret. Required in production; a fixed dev value is used only
+// outside production so local runs work without configuration.
+const JWT_SECRET = process.env.JWT_SECRET ?? (IS_PROD ? '' : 'dev-insecure-secret');
+if (IS_PROD && !JWT_SECRET) {
+  throw new Error('JWT_SECRET must be set in production');
+}
 
-// Verification turns on as soon as we know the team domain. The AUD tag is an
-// optional extra check ("token was issued for THIS app"); when it's absent we
-// still verify the signature + issuer and trust the email claim, since the
-// Access policy at the edge already controls who may reach this service.
-const accessEnabled = Boolean(TEAM_DOMAIN);
+export const SESSION_COOKIE = 'ra_session';
+const SESSION_TTL_DAYS = 30;
 
-const jwks = accessEnabled
-  ? createRemoteJWKSet(new URL(`https://${TEAM_DOMAIN}/cdn-cgi/access/certs`))
-  : null;
+// `secure` cookies are only sent over HTTPS. The temporary VM is reached over
+// http on the LAN, so this is env-gated (default off) and should be set true
+// once the app is served exclusively over HTTPS (roundsahead.com).
+const COOKIE_SECURE = process.env.COOKIE_SECURE === 'true';
 
-if (accessEnabled) {
-  console.log(
-    `[auth] Cloudflare Access verification enabled for team ${TEAM_DOMAIN}` +
-      (AUD ? ' (with AUD audience check)' : ' (no AUD set — audience check skipped)'),
-  );
-} else {
-  console.warn(
-    `[auth] Cloudflare Access NOT configured — using dev identity "${DEV_EMAIL}". ` +
-      'Set CF_ACCESS_TEAM_DOMAIN in production.',
-  );
+const BCRYPT_ROUNDS = 12;
+
+// ── Password hashing ────────────────────────────────────────────────
+export async function hashPassword(plain: string): Promise<string> {
+  return bcrypt.hash(plain, BCRYPT_ROUNDS);
+}
+
+export async function verifyPassword(plain: string, hash: string): Promise<boolean> {
+  return bcrypt.compare(plain, hash);
+}
+
+// ── Session tokens (JWT in an httpOnly cookie) ──────────────────────
+interface SessionPayload {
+  sub: string; // user id
+}
+
+export function issueSession(res: Response, userId: string): void {
+  const token = jwt.sign({ sub: userId } satisfies SessionPayload, JWT_SECRET, {
+    expiresIn: `${SESSION_TTL_DAYS}d`,
+  });
+  res.cookie(SESSION_COOKIE, token, {
+    httpOnly: true,
+    secure: COOKIE_SECURE,
+    sameSite: 'lax',
+    maxAge: SESSION_TTL_DAYS * 24 * 60 * 60 * 1000,
+    path: '/',
+  });
+}
+
+export function clearSession(res: Response): void {
+  res.clearCookie(SESSION_COOKIE, { path: '/' });
 }
 
 export interface AuthedRequest extends Request {
-  userEmail?: string;
+  userId?: string;
 }
 
-export async function requireIdentity(
-  req: AuthedRequest,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
-  if (!accessEnabled || !jwks || !TEAM_DOMAIN) {
-    req.userEmail = DEV_EMAIL;
-    next();
-    return;
-  }
-
-  const token = req.header('Cf-Access-Jwt-Assertion');
+// Gate for authenticated routes. 401s when no valid session cookie is present.
+export function requireAuth(req: AuthedRequest, res: Response, next: NextFunction): void {
+  const token = req.cookies?.[SESSION_COOKIE];
   if (!token) {
-    res.status(401).json({ error: 'Missing Cloudflare Access token' });
+    res.status(401).json({ error: 'Not authenticated' });
     return;
   }
-
   try {
-    const verifyOpts: { issuer: string; audience?: string } = {
-      issuer: `https://${TEAM_DOMAIN}`,
-    };
-    if (AUD) verifyOpts.audience = AUD;
-    const { payload } = await jwtVerify(token, jwks, verifyOpts);
-    const email = (payload.email as string | undefined) ?? (payload.sub as string | undefined);
-    if (!email) {
-      res.status(401).json({ error: 'No identity in Cloudflare Access token' });
-      return;
-    }
-    req.userEmail = email.toLowerCase();
+    const payload = jwt.verify(token, JWT_SECRET) as SessionPayload;
+    req.userId = payload.sub;
     next();
   } catch {
-    res.status(401).json({ error: 'Invalid Cloudflare Access token' });
+    res.status(401).json({ error: 'Invalid or expired session' });
   }
 }

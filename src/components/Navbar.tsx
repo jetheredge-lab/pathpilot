@@ -13,9 +13,12 @@ import {
   Upload, 
   RefreshCw,
   Sparkles,
-  Stethoscope
+  Stethoscope,
+  LogOut,
+  Trash2
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import { Modal } from './common/Modal';
 
 export type TabType = 
@@ -45,6 +48,8 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
     importDataJSON,
     syncStatus
   } = useApp();
+
+  const { user, logout, deleteAccount } = useAuth();
 
   const syncMeta: Record<typeof syncStatus, { label: string; dot: string; text: string }> = {
     local: { label: 'Local only', dot: 'bg-slate-400', text: 'text-slate-500' },
@@ -184,9 +189,19 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
               <button
                 onClick={() => setIsBackupModalOpen(true)}
                 className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 transition-colors"
-                title="Backup or restore data"
+                title="Backup, restore, or account settings"
               >
                 <Download className="w-4 h-4" />
+              </button>
+
+              {/* Sign out */}
+              <button
+                onClick={() => logout()}
+                className="flex items-center gap-1.5 p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 transition-colors"
+                title={user ? `Signed in as ${user.email} — sign out` : 'Sign out'}
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden lg:inline text-xs font-semibold max-w-[140px] truncate">{user?.email}</span>
               </button>
             </div>
           </div>
@@ -278,6 +293,30 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
                 Restore Data
               </button>
             </div>
+          </div>
+
+          {/* Account (danger zone) */}
+          <div className="bg-rose-50 p-4 rounded-xl border border-rose-200">
+            <h4 className="text-sm font-bold text-rose-800 mb-1 flex items-center space-x-2">
+              <Trash2 className="w-4 h-4 text-rose-600" />
+              <span>Delete account</span>
+            </h4>
+            <p className="text-xs text-rose-700/80 mb-3">
+              {user ? <>Signed in as <span className="font-semibold">{user.email}</span>. </> : null}
+              Permanently deletes your account and all saved data. This cannot be undone.
+            </p>
+            <button
+              onClick={async () => {
+                if (!window.confirm('Delete your account and all saved data? This cannot be undone.')) return;
+                if (!window.confirm('This is permanent. Delete your account now?')) return;
+                const ok = await deleteAccount();
+                if (!ok) alert('Could not delete the account. Please try again.');
+                // On success the app returns to the sign-in screen automatically.
+              }}
+              className="px-4 py-2 bg-rose-600 text-white text-xs font-semibold rounded-lg hover:bg-rose-700 transition-colors"
+            >
+              Delete my account
+            </button>
           </div>
 
           <div className="border-t border-slate-200 pt-4 flex justify-between items-center">
