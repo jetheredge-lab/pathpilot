@@ -24,8 +24,9 @@ FILE="$BACKUP_DIR/roundsahead_${TS}.sql.gz"
 
 echo "[$(date -Is)] Starting backup -> $FILE"
 
-# -T disables the pseudo-TTY so the piped output stays clean.
-docker compose exec -T postgres pg_dump -U "$DB_USER" -d "$DB_NAME" --clean --if-exists \
+# -T disables the pseudo-TTY; </dev/null keeps `exec` from consuming our stdin
+# (important when this runs inside an SSH/heredoc context).
+docker compose exec -T postgres pg_dump -U "$DB_USER" -d "$DB_NAME" --clean --if-exists </dev/null \
   | gzip > "$FILE"
 
 # Sanity check: the gzip must decompress to something that looks like a dump.
