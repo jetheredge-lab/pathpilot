@@ -46,7 +46,12 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
     resetAllData,
     exportDataJSON,
     importDataJSON,
-    syncStatus
+    syncStatus,
+    students,
+    currentStudentId,
+    selectStudent,
+    addStudent,
+    deleteStudent
   } = useApp();
 
   const { user, logout, deleteAccount } = useAuth();
@@ -127,7 +132,27 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
 
             {/* Quick Readiness Score Gauge & Action Buttons */}
             <div className="flex items-center space-x-3 sm:space-x-4">
-              
+
+              {/* Student switcher (parent with multiple kids) */}
+              {students.length > 0 && (
+                <select
+                  value={currentStudentId ?? ''}
+                  onChange={(e) => {
+                    if (e.target.value === '__add__') addStudent();
+                    else selectStudent(e.target.value);
+                  }}
+                  className="hidden md:block text-xs font-semibold rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 max-w-[180px]"
+                  title="Switch student"
+                >
+                  {students.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {(s.fullName || 'Unnamed student') + ' · ' + s.gradYear}
+                    </option>
+                  ))}
+                  <option value="__add__">+ Add student</option>
+                </select>
+              )}
+
               {/* Junior Readiness Chip */}
               <div 
                 className="hidden md:flex items-center space-x-2 bg-slate-50 border border-slate-200 rounded-full px-3.5 py-1.5 cursor-pointer hover:bg-slate-100 transition-colors"
@@ -292,6 +317,38 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
               >
                 Restore Data
               </button>
+            </div>
+          </div>
+
+          {/* Students */}
+          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <h4 className="text-sm font-bold text-slate-800 mb-1 flex items-center space-x-2">
+              <User className="w-4 h-4 text-brand-600" />
+              <span>Students on this account</span>
+            </h4>
+            <p className="text-xs text-slate-600 mb-3">
+              You have {students.length} student{students.length === 1 ? '' : 's'}. Add another from the switcher in the top bar.
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => { addStudent(); }}
+                className="px-3 py-1.5 bg-brand-600 text-white text-xs font-semibold rounded-lg hover:bg-brand-700 transition-colors"
+              >
+                Add student
+              </button>
+              {currentStudentId && (
+                <button
+                  onClick={() => {
+                    const name = profile.fullName || 'this student';
+                    if (window.confirm(`Remove ${name} and all of their data? This cannot be undone.`)) {
+                      deleteStudent(currentStudentId);
+                    }
+                  }}
+                  className="px-3 py-1.5 text-rose-600 hover:text-rose-700 text-xs font-semibold rounded-lg border border-rose-200 hover:bg-rose-50 transition-colors"
+                >
+                  Remove current student
+                </button>
+              )}
             </div>
           </div>
 

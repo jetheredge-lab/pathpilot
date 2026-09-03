@@ -3,7 +3,8 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import { authRouter } from './routes/auth.js';
-import { stateRouter } from './routes/state.js';
+import { studentsRouter } from './routes/students.js';
+import { requireAuth } from './auth.js';
 
 const app = express();
 
@@ -31,7 +32,7 @@ const authLimiter = rateLimit({
 });
 
 app.use('/api/auth', authLimiter, authRouter);
-app.use('/api/state', stateRouter);
+app.use('/api/students', requireAuth, studentsRouter);
 
 const PORT = Number(process.env.PORT) || 4100;
 app.listen(PORT, () => {

@@ -1,8 +1,9 @@
-// RoundsAhead data model (Phase 2).
+// RoundsAhead data model (Phase 3 — normalized, multi-student).
 //
-// Auth-first: a real users table with hashed passwords and entitlement fields.
-// App state is still stored as one JSON document per user for now — Phase 3
-// splits it into per-resource tables (student_profiles, saved_colleges, …).
+// One account (User) has many Students. Each Student owns its profile fields
+// plus normalized child records. Fixed-shape nested bits (checklist, ratings,
+// activities/awards) stay as JSON columns — normalizing them adds churn without
+// query value.
 
 generator client {
   provider      = "prisma-client-js"
@@ -27,16 +28,146 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  appState AppState?
+  students Student[]
 
   @@map("users")
 }
 
-model AppState {
-  userId    String   @id
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  data      Json     @default("{}")
+model Student {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Profile fields (mirror of the client StudentProfile type).
+  fullName              String  @default("")
+  gradYear              Int     @default(2028)
+  currentGrade          String  @default("11th (Junior)")
+  highSchool            String  @default("")
+  city                  String  @default("")
+  state                 String  @default("")
+  unweightedGpa         Float   @default(0)
+  weightedGpa           Float   @default(0)
+  satScore              Int?
+  actScore              Int?
+  targetSatScore        Int?
+  psatScore             Int?
+  apIbCoursesCount      Int     @default(0)
+  apCourses             Json    @default("[]") // string[]
+  careerGoal            String  @default("undecided")
+  intendedMajors        Json    @default("[]") // string[]
+  clinicalHours         Int     @default(0)
+  communityServiceHours Int     @default(0)
+  extracurriculars      Json    @default("[]") // ActivityItem[]
+  awards                Json    @default("[]") // AwardItem[]
+  targetCollegeCount    Int     @default(5)
+  budgetPerYear         Int?
+  preferredRegions      Json    @default("[]") // string[]
+  notes                 String  @default("")
+
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("app_states")
+  savedColleges SavedCollege[]
+  finalFive     FinalFiveItem[]
+  timelineTasks TimelineTask[]
+  essays        EssayDraft[]
+  campusVisits  CampusVisit[]
+
+  @@index([userId])
+  @@map("students")
+}
+
+model SavedCollege {
+  id        String   @id @default(cuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  collegeId String
+  createdAt DateTime @default(now())
+
+  @@unique([studentId, collegeId])
+  @@map("saved_colleges")
+}
+
+model FinalFiveItem {
+  id              String   @id @default(cuid())
+  studentId       String
+  student         Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  collegeId       String
+  applicationType String   @default("EA")
+  status          String   @default("researching")
+  category        String   @default("Target")
+  checklist       Json // FinalFiveItem['checklist'] (12 booleans)
+  notes           String   @default("")
+  targetMajor     String   @default("")
+  portalUrl       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([studentId, collegeId])
+  @@map("final_five_items")
+}
+
+model TimelineTask {
+  // id is client-provided (default-task ids and custom_* ids) so seeded and
+  // custom tasks keep stable identities across devices.
+  id                  String   @id
+  studentId           String
+  student             Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  title               String
+  category            String
+  targetMonth         String
+  gradeLevel          String
+  priority            String
+  description         String   @default("")
+  actionItems         Json     @default("[]") // string[]
+  completed           Boolean  @default(false)
+  isCustom            Boolean  @default(false)
+  dueDate             String?
+  associatedCollegeId String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([studentId])
+  @@map("timeline_tasks")
+}
+
+model EssayDraft {
+  id                  String   @id
+  studentId           String
+  student             Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  title               String
+  type                String
+  promptText          String   @default("")
+  associatedCollegeId String?
+  targetWordCount     Int      @default(650)
+  currentDraft        String   @default("")
+  outline             String   @default("")
+  status              String   @default("brainstorming")
+  lastEdited          String   @default("")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([studentId])
+  @@map("essay_drafts")
+}
+
+model CampusVisit {
+  id                             String   @id
+  studentId                      String
+  student                        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  collegeId                      String
+  collegeName                    String   @default("")
+  visitDate                      String   @default("")
+  overallRating                  Int      @default(0)
+  ratings                        Json // CampusVisit['ratings'] (5 sub-ratings)
+  pros                           Json     @default("[]") // string[]
+  cons                           Json     @default("[]") // string[]
+  notes                          String   @default("")
+  talkedToCurrentStudents        Boolean  @default(false)
+  visitedSimulationLabOrHospital Boolean  @default(false)
+  createdAt                      DateTime @default(now())
+  updatedAt                      DateTime @updatedAt
+
+  @@index([studentId])
+  @@map("campus_visits")
 }
