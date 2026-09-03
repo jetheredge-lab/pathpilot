@@ -32,6 +32,17 @@ async function post(path: string, body?: unknown): Promise<AuthResult> {
   }
 }
 
+// Which OAuth providers are configured on the server (drives which buttons show).
+export async function apiProviders(): Promise<{ google: boolean; apple: boolean }> {
+  try {
+    const res = await fetch(`${API_BASE}/providers`, { credentials: 'include' });
+    if (!res.ok) return { google: false, apple: false };
+    return await res.json();
+  } catch {
+    return { google: false, apple: false };
+  }
+}
+
 // Returns the signed-in user, or null if there is no valid session.
 export async function apiMe(): Promise<AuthUser | null> {
   try {

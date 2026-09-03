@@ -59,10 +59,14 @@ authRouter.post('/login', async (req, res) => {
   }
   const { email, password } = parsed.data;
 
+  const DUMMY_HASH = '$2a$12$0000000000000000000000000000000000000000000000000000';
   const user = await prisma.user.findUnique({ where: { email } });
-  // Always run a comparison to reduce user-enumeration timing signals.
-  const ok = user ? await verifyPassword(password, user.passwordHash) : await verifyPassword(password, '$2a$12$0000000000000000000000000000000000000000000000000000');
-  if (!user || !ok) {
+  // Always run a comparison to reduce user-enumeration timing signals. Accounts
+  // created via Google/Apple have no passwordHash and can't log in with one.
+  const ok = user?.passwordHash
+    ? await verifyPassword(password, user.passwordHash)
+    : await verifyPassword(password, DUMMY_HASH);
+  if (!user || !user.passwordHash || !ok) {
     res.status(401).json({ error: 'Invalid email or password' });
     return;
   }

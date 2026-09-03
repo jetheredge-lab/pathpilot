@@ -3,6 +3,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import { authRouter } from './routes/auth.js';
+import { oauthRouter } from './routes/oauth.js';
 import { studentsRouter } from './routes/students.js';
 import { requireAuth } from './auth.js';
 
@@ -11,6 +12,8 @@ const app = express();
 // Behind the Cloudflare Tunnel + nginx.
 app.set('trust proxy', 1);
 app.use(express.json({ limit: '5mb' }));
+// Apple's Sign in with Apple posts its callback as form-encoded data.
+app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // CORS only matters for local dev (Vite on a different port). In production the
@@ -32,6 +35,8 @@ const authLimiter = rateLimit({
 });
 
 app.use('/api/auth', authLimiter, authRouter);
+// OAuth redirect/callback routes (not rate-limited like credential endpoints).
+app.use('/api/auth', oauthRouter);
 app.use('/api/students', requireAuth, studentsRouter);
 
 const PORT = Number(process.env.PORT) || 4100;

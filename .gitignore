@@ -15,6 +15,7 @@ server/data/
 # Secrets / local env
 .env
 .env.local
+secrets/
 
 # Local Claude Code settings (per-machine permission state)
 .claude/settings.local.json

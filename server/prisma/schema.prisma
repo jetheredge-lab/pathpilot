@@ -18,8 +18,13 @@ datasource db {
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
-  passwordHash  String
+  // Null for accounts created purely via an OAuth provider (Google/Apple).
+  passwordHash  String?
   emailVerified Boolean   @default(false)
+
+  // OAuth provider linkage (keyed by the provider's stable subject id).
+  googleId String? @unique
+  appleId  String? @unique
 
   // Entitlement (Phase 9 fills this in via Stripe webhooks).
   plan                 String    @default("free") // "free" | "paid"
