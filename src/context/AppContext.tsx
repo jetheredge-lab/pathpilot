@@ -52,7 +52,7 @@ interface AppContextType {
   finalFiveCompletionPercent: (collegeId: string) => number;
 }
 
-const STORAGE_KEY = 'pathpilot_college_prep_data_v1';
+const STORAGE_KEY = 'roundsahead_data_v1';
 
 const defaultEmptyProfile: StudentProfile = {
   id: 'student_user',

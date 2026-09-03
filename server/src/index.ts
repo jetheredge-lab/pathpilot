@@ -28,12 +28,12 @@ function stateKey(req: AuthedRequest): string {
 
 console.log(
   SHARED_PORTFOLIO
-    ? '[pathpilot-api] SHARED portfolio mode — all users share one household document'
-    : '[pathpilot-api] PER-USER portfolio mode — each identity gets its own document',
+    ? '[roundsahead-api] SHARED portfolio mode — all users share one household document'
+    : '[roundsahead-api] PER-USER portfolio mode — each identity gets its own document',
 );
 
 app.get('/api/health', (_req, res) => {
-  res.json({ ok: true, service: 'pathpilot-api' });
+  res.json({ ok: true, service: 'roundsahead-api' });
 });
 
 // Load the household (shared) or the current user's saved app state.
@@ -55,5 +55,5 @@ app.put('/api/state', requireIdentity, (req: AuthedRequest, res) => {
 
 const PORT = Number(process.env.PORT) || 4100;
 app.listen(PORT, () => {
-  console.log(`[pathpilot-api] listening on port ${PORT}`);
+  console.log(`[roundsahead-api] listening on port ${PORT}`);
 });

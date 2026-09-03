@@ -110,13 +110,13 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
               <div>
                 <div className="flex items-center space-x-2">
                   <span className="text-xl font-black tracking-tight text-slate-900">
-                    Path<span className="text-brand-600">Pilot</span>
+                    Rounds<span className="text-brand-600">Ahead</span>
                   </span>
                   <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-brand-100 text-brand-800">
-                    11th Grade Navigator
+                    Pre-Health
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 hidden sm:block">Pre-Med & Nurse Anesthetist (CRNA) College Accelerator</p>
+                <p className="text-xs text-slate-500 hidden sm:block">Pre-health pathway planning for high school students</p>
               </div>
             </div>
 

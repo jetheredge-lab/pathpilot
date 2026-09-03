@@ -1,4 +1,4 @@
-// Thin client for the PathPilot sync backend.
+// Thin client for the RoundsAhead sync backend.
 //
 // In production, nginx serves the SPA and proxies `/api/*` to the API
 // container, so a relative base URL works everywhere. In local dev, Vite

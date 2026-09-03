@@ -1,9 +1,9 @@
 {
-  "name": "pathpilot-api",
+  "name": "roundsahead-api",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "PathPilot sync backend — per-user JSON state store keyed by Cloudflare Access identity.",
+  "description": "RoundsAhead sync backend — per-user JSON state store keyed by Cloudflare Access identity.",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",

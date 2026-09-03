@@ -5,7 +5,7 @@ import { dirname } from 'node:path';
 // Single-file SQLite store. One row per user identity (email), holding the
 // entire app state as a JSON document. This mirrors the frontend's own
 // state shape exactly, so no relational modeling is needed.
-const DB_PATH = process.env.DB_PATH ?? './data/pathpilot.db';
+const DB_PATH = process.env.DB_PATH ?? './data/roundsahead.db';
 
 mkdirSync(dirname(DB_PATH), { recursive: true });
 

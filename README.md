@@ -1,6 +1,11 @@
-# PathPilot — College Prep & Admissions Navigator for High School Juniors
+# RoundsAhead — Pre-health pathway planning for high school students
 
-An all-in-one college admissions accelerator tailored for high school 11th graders and their families, with specialized deep-dives for **Physician Anesthesiologist (MD/DO)** and **Nurse Anesthetist (CRNA via Direct-Entry BSN)** career tracks.
+Pre-health pathway planning for high school students and their families, with
+deep-dives for **Physician (MD/DO)**, **Nurse Anesthetist (CRNA)**, **Direct-Entry
+Nursing (BSN)**, and other health-career tracks. The buyer is the parent; counselors
+are the distribution channel. See `docs/roundsahead-launch-plan.md` and
+`docs/roundsahead-marketing-plan.md` for the phased plan and positioning, and
+`CLAUDE.md` for the product framing and non-negotiables.
 
 ---
 
@@ -9,21 +14,21 @@ An all-in-one college admissions accelerator tailored for high school 11th grade
 To run the application locally on your Mac:
 
 ```bash
-# 1. Open terminal in this folder
-cd "/Users/jeremyetheredge/Desktop/College Prep"
+# 1. Open a terminal in the repo root
 
 # 2. Start the local development server
 npm run dev
 ```
 
-Then open your browser and navigate to: **`http://localhost:3000`**
+Then open your browser and navigate to: **`http://localhost:3000/app/`**
+(the SPA is served under `/app`; the marketing landing page owns `/`).
 
 ---
 
 ## 🌟 Key Application Features
 
 ### 1. 🧭 Junior Year Admissions Launchpad (Dashboard)
-- **Holistic Junior Admissions Gauge**: Computes your son's readiness score based on GPA, SAT targets, course rigor, clinical hours, activities, and essay drafts.
+- **Holistic Junior Admissions Gauge**: Computes your student's readiness score based on GPA, SAT targets, course rigor, clinical hours, activities, and essay drafts.
 - **Priority Action Items**: Highlights immediate 11th-grade priorities (PSAT in October, spring SAT/ACT test prep, hospital volunteering).
 - **Application Package Progress**: Real-time progress bar across all chosen target colleges.
 
@@ -35,7 +40,7 @@ Then open your browser and navigate to: **`http://localhost:3000`**
 - **Interactive FAQ**: Answers questions regarding Direct-Entry BSN vs. standard Pre-Nursing, undergraduate major flexibility, and ICU requirements.
 
 ### 3. 🔍 Smart College Matcher & Research Hub
-- **Dynamic Admissions Categorization**: Calculates whether a school is **🟢 Likely / Safety**, **🟡 Target**, or **🔴 Reach** based on your son's actual unweighted GPA and SAT score.
+- **Dynamic Admissions Categorization**: Calculates whether a school is **🟢 Likely / Safety**, **🟡 Target**, or **🔴 Reach** based on your student's actual unweighted GPA and SAT score.
 - **Specialized Filters**:
   - Direct-Entry BSN (guaranteed clinical seats from Day 1)
   - Top Pre-Med advising programs
@@ -77,7 +82,7 @@ Then open your browser and navigate to: **`http://localhost:3000`**
 - **Common App 7 Prompts**: Complete breakdown with diagnostic brainstorming questions and healthcare/pre-med angle advice.
 - **Supplemental Guides**: Structures and proven outline beats for *Why Nursing (BSN)*, *Why Pre-Med*, and *Why This College*.
 - **Live Drafting Workspace**: Word count counter, outline scratchpad, and status tracking.
-- **Teacher Recommendation Request Kit**: Pre-formatted, respectful email template that automatically incorporates your son's GPA, course name, and earliest application deadlines.
+- **Teacher Recommendation Request Kit**: Pre-formatted, respectful email template that automatically incorporates your student's GPA, course name, and earliest application deadlines.
 
 ### 8. 🗺️ Campus Tour Scorecard & Reflection Journal
 - Rate campus vibe, simulation labs, pre-med advisor access, dorms, and location safety on a 5-star rubric.
@@ -103,7 +108,7 @@ blank portfolio — use **Load Sample Profile** to populate realistic demo data.
 
 ## 🚀 Deployment (self-hosted + Cloudflare)
 
-PathPilot is packaged as a 3-container Docker stack (`web` nginx + `api`
+RoundsAhead is packaged as a 3-container Docker stack (`web` nginx + `api`
 Node/SQLite + `cloudflared` tunnel) that runs on a Windows host and publishes
 securely to a custom domain. See **[DEPLOY.md](./DEPLOY.md)** for the full,
 step-by-step guide (tunnel setup, Cloudflare Access, `.env`, launch).

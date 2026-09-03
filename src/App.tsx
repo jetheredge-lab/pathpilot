@@ -40,8 +40,8 @@ const AppContent: React.FC = () => {
             <div className="w-6 h-6 rounded-lg bg-brand-600 flex items-center justify-center text-white font-bold text-xs">
               <GraduationCap className="w-3.5 h-3.5" />
             </div>
-            <span className="font-bold text-slate-900">PathPilot</span>
-            <span>— High School Junior College Admissions & Pre-Med / CRNA Accelerator</span>
+            <span className="font-bold text-slate-900">RoundsAhead</span>
+            <span>— Pre-health pathway planning for high school students</span>
           </div>
 
           <div className="flex items-center space-x-4">

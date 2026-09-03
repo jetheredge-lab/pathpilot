@@ -56,7 +56,7 @@ export const DEFAULT_TIMELINE_TASKS: TimelineTask[] = [
     priority: 'medium',
     description: 'Determine whether you want to target Direct-Entry BSN programs (guaranteed nursing clinicals for CRNA) vs Pre-Med science tracks (Biology/Biochem for Anesthesiology MD).',
     actionItems: [
-      'Review the Career Pathway comparison in PathPilot with your parents',
+      'Review the Career Pathway comparison in RoundsAhead with your parents',
       'Identify if college list should focus on Direct-Entry BSN universities or Pre-Med powerhouses',
       'Build initial long-list of 15-20 prospective colleges'
     ],
@@ -90,7 +90,7 @@ export const DEFAULT_TIMELINE_TASKS: TimelineTask[] = [
     actionItems: [
       'Book official campus tours & information sessions',
       'Schedule specific tours with the School of Nursing or Pre-Health Advising office',
-      'Use the PathPilot Campus Visit Scorecard to record notes and impressions'
+      'Use the RoundsAhead Campus Visit Scorecard to record notes and impressions'
     ],
     completed: false
   },
@@ -104,7 +104,7 @@ export const DEFAULT_TIMELINE_TASKS: TimelineTask[] = [
     description: 'Colleges prefer recommendation letters from junior year core academic teachers (especially 1 Science and 1 Math or English teacher). Ask before summer break!',
     actionItems: [
       'Identify 2 junior year teachers who know your work ethic and character best (e.g. AP Chem + AP English)',
-      'Generate your official Counselor & Teacher Brag Sheet in PathPilot',
+      'Generate your official Counselor & Teacher Brag Sheet in RoundsAhead',
       'Politely ask teachers in person before finals, followed by an email packet'
     ],
     completed: false
@@ -135,7 +135,7 @@ export const DEFAULT_TIMELINE_TASKS: TimelineTask[] = [
     priority: 'high',
     description: 'Narrow your college list into a balanced mix of 2 Likely/Safety schools, 2-3 Target schools, and 1-2 Reach schools.',
     actionItems: [
-      'Populate your Final 5 Application Package in PathPilot',
+      'Populate your Final 5 Application Package in RoundsAhead',
       'Verify Early Action (EA) vs Regular Decision (RD) deadline dates for each school',
       'Check specific direct-entry nursing supplemental requirements for each university'
     ],

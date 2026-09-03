@@ -1,6 +1,6 @@
-# Deploying PathPilot
+# Deploying RoundsAhead
 
-PathPilot runs as a small, self-contained Docker stack on your Windows host,
+RoundsAhead runs as a small, self-contained Docker stack on your Windows host,
 published securely at **https://pathpilot.meetiqpro.ai** via a Cloudflare
 Tunnel, and gated to approved emails with **Cloudflare Access**.
 
@@ -22,11 +22,11 @@ Browser ── HTTPS ──> Cloudflare (Access login) ──> Tunnel ──> cl
 
 | Container              | Role                                                        | Host port |
 | ---------------------- | ----------------------------------------------------------- | --------- |
-| `pathpilot_web`        | nginx — serves the built SPA, proxies `/api` to the backend | `8080`    |
-| `pathpilot_api`        | Node/Express + SQLite — per-user state sync                 | internal  |
-| `pathpilot_cloudflared`| Cloudflare Tunnel to `pathpilot.meetiqpro.ai`               | —         |
+| `roundsahead_web`        | nginx — serves the built SPA, proxies `/api` to the backend | `8080`    |
+| `roundsahead_api`        | Node/Express + SQLite — per-user state sync                 | internal  |
+| `roundsahead_cloudflared`| Cloudflare Tunnel to `pathpilot.meetiqpro.ai`               | —         |
 
-Data lives in the `pathpilot_data` Docker volume (the SQLite database).
+Data lives in the `roundsahead_data` Docker volume (the SQLite database).
 
 ---
 
@@ -113,17 +113,17 @@ git pull
 docker compose --profile cloudflare up -d --build
 ```
 
-The `pathpilot_data` volume (everyone's saved portfolios) persists across
+The `roundsahead_data` volume (everyone's saved portfolios) persists across
 rebuilds.
 
 ---
 
 ## 7. Backups
 
-The whole database is the `pathpilot_data` volume. To snapshot it:
+The whole database is the `roundsahead_data` volume. To snapshot it:
 
 ```bash
-docker run --rm -v pathpilot_data:/data -v "$PWD":/backup alpine \
+docker run --rm -v roundsahead_data:/data -v "$PWD":/backup alpine \
   tar czf /backup/pathpilot-db-backup.tar.gz -C /data .
 ```
 
@@ -137,8 +137,8 @@ Users can also self-export their own data any time via the in-app
 Nothing to change on the tv-tracker side. The two stacks share only the Docker
 engine:
 
-- Distinct container names (`pathpilot_*` vs `tvtracker_*`) and volumes.
-- PathPilot publishes host port **8080**; tv-tracker uses **4000** / **5432**.
+- Distinct container names (`roundsahead_*` vs `tvtracker_*`) and volumes.
+- RoundsAhead publishes host port **8080**; tv-tracker uses **4000** / **5432**.
 - Each stack has its **own** Cloudflare Tunnel and token.
 
 Manage them independently with `docker compose` from their respective folders.

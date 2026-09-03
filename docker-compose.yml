@@ -1,24 +1,27 @@
-# PathPilot — self-contained stack.
+# RoundsAhead — self-contained stack.
 #
 # Designed to run alongside the tv-tracker stack on the same host without
 # collisions: distinct container/volume names, its own cloudflared tunnel,
 # and host ports that do not overlap tv-tracker (4000, 5432).
 #
-#   web  -> nginx serving the built SPA, proxying /api to the backend
+#   web  -> nginx serving the marketing landing page (/) + the SPA (/app),
+#           proxying /api to the backend
 #   api  -> Node/SQLite sync service (identity via Cloudflare Access)
-#   cloudflared -> exposes the site at pathpilot.meetiqpro.ai (optional profile)
+#   cloudflared -> exposes the site publicly (optional profile). Currently
+#                  routed to pathpilot.meetiqpro.ai; moves to roundsahead.com
+#                  once the production hosting is ready.
 
 services:
   api:
     build:
       context: ./server
       dockerfile: Dockerfile
-    container_name: pathpilot_api
+    container_name: roundsahead_api
     restart: always
     environment:
       PORT: 4100
       NODE_ENV: production
-      DB_PATH: /app/data/pathpilot.db
+      DB_PATH: /app/data/roundsahead.db
       # When true, everyone shares ONE household portfolio (recommended for a
       # family collaborating on a single student). When false, each Cloudflare
       # Access identity gets its own private document.
@@ -27,7 +30,7 @@ services:
       CF_ACCESS_TEAM_DOMAIN: "${CF_ACCESS_TEAM_DOMAIN}"
       CF_ACCESS_AUD: "${CF_ACCESS_AUD}"
     volumes:
-      - pathpilot_data:/app/data
+      - roundsahead_data:/app/data
     expose:
       - "4100"
 
@@ -35,11 +38,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.web
-    container_name: pathpilot_web
+    container_name: roundsahead_web
     restart: always
     ports:
-      # Host port 8080 -> container 80. Reach the app on the LAN at
-      # http://<windows-host>:8080 and via the tunnel publicly.
+      # Host port 8080 -> container 80. Reach it on the LAN at
+      # http://<docker-host>:8080 and via the tunnel publicly.
       - "8080:80"
     depends_on:
       - api
@@ -47,7 +50,7 @@ services:
   # Public HTTPS via Cloudflare Tunnel. Enable with:  --profile cloudflare
   cloudflared:
     image: cloudflare/cloudflared:latest
-    container_name: pathpilot_cloudflared
+    container_name: roundsahead_cloudflared
     restart: unless-stopped
     command: tunnel run
     environment:
@@ -58,4 +61,4 @@ services:
       - cloudflare
 
 volumes:
-  pathpilot_data:
+  roundsahead_data:
