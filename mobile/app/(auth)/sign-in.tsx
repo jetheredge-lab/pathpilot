@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -11,15 +11,48 @@ import {
   View,
 } from 'react-native';
 import * as AppleAuthentication from 'expo-apple-authentication';
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
 import { useAuth } from '@/auth';
+import {
+  GOOGLE_ANDROID_CLIENT_ID,
+  GOOGLE_IOS_CLIENT_ID,
+  GOOGLE_WEB_CLIENT_ID,
+  googleNativeConfigured,
+} from '@/config';
+
+// Required so the OAuth popup can hand control back to the app.
+WebBrowser.maybeCompleteAuthSession();
 
 export default function SignIn() {
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, signInWithApple, signInWithGoogleToken } = useAuth();
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Google identity-token request. Returns an id_token we exchange server-side.
+  const [googleRequest, googleResponse, googlePrompt] = Google.useIdTokenAuthRequest({
+    iosClientId: GOOGLE_IOS_CLIENT_ID,
+    androidClientId: GOOGLE_ANDROID_CLIENT_ID,
+    webClientId: GOOGLE_WEB_CLIENT_ID,
+  });
+
+  useEffect(() => {
+    if (googleResponse?.type !== 'success') return;
+    const idToken = googleResponse.params?.id_token;
+    if (!idToken) {
+      setError('Google sign-in did not return a token.');
+      return;
+    }
+    setError(null);
+    setBusy(true);
+    signInWithGoogleToken(idToken)
+      .catch((e) => setError(e instanceof Error ? e.message : 'Google sign-in failed'))
+      .finally(() => setBusy(false));
+    // On success the root navigator redirects into the app.
+  }, [googleResponse, signInWithGoogleToken]);
 
   const submit = async () => {
     setError(null);
@@ -27,7 +60,6 @@ export default function SignIn() {
     try {
       if (mode === 'signin') await signIn(email.trim(), password);
       else await signUp(email.trim(), password);
-      // On success the root navigator redirects into the app.
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong');
     } finally {
@@ -35,14 +67,31 @@ export default function SignIn() {
     }
   };
 
-  // Native OAuth needs a backend token-exchange endpoint (POST the Apple/Google
-  // identity token, receive our session token). That endpoint is the next step
-  // in Phase 8.2 — the buttons are wired to the UI now, backend to follow.
-  const nativeOAuthTodo = (provider: string) =>
-    Alert.alert(
-      `${provider} sign-in`,
-      `Native ${provider} sign-in is coming next — it needs the backend token-exchange endpoint. Use email + password for now.`,
-    );
+  const onApple = async () => {
+    setError(null);
+    setBusy(true);
+    try {
+      await signInWithApple();
+    } catch (e) {
+      // The user tapping Cancel isn't an error worth surfacing.
+      if ((e as { code?: string })?.code !== 'ERR_REQUEST_CANCELED') {
+        setError(e instanceof Error ? e.message : 'Apple sign-in failed');
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const onGoogle = () => {
+    if (!googleNativeConfigured) {
+      Alert.alert(
+        'Google sign-in',
+        'Google sign-in needs OAuth client IDs configured for the app. Use email + password for now.',
+      );
+      return;
+    }
+    googlePrompt();
+  };
 
   return (
     <KeyboardAvoidingView
@@ -124,13 +173,14 @@ export default function SignIn() {
             buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
             cornerRadius={12}
             style={{ height: 48, width: '100%' }}
-            onPress={() => nativeOAuthTodo('Apple')}
+            onPress={onApple}
           />
         ) : null}
 
         <Pressable
           className="mt-3 items-center rounded-xl border border-slate-300 py-3.5 active:opacity-80"
-          onPress={() => nativeOAuthTodo('Google')}
+          disabled={busy || (googleNativeConfigured && !googleRequest)}
+          onPress={onGoogle}
         >
           <Text className="text-base font-semibold text-ink">Continue with Google</Text>
         </Pressable>

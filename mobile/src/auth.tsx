@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import * as SecureStore from 'expo-secure-store';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { api, type AuthUser } from './api';
 
 const TOKEN_KEY = 'ra_session_token';
@@ -10,6 +11,10 @@ interface AuthState {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
+  signInWithApple: () => Promise<void>;
+  // Google's request/response lives in the screen (it's a hook); this persists
+  // the session once the id_token comes back.
+  signInWithGoogleToken: (idToken: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -55,6 +60,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await persist(res.token, res.user);
   };
 
+  const signInWithApple = async () => {
+    const credential = await AppleAuthentication.signInAsync({
+      requestedScopes: [
+        AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+        AppleAuthentication.AppleAuthenticationScope.EMAIL,
+      ],
+    });
+    if (!credential.identityToken) {
+      throw new Error('Apple did not return an identity token');
+    }
+    const res = await api.appleNative(credential.identityToken);
+    await persist(res.token, res.user);
+  };
+
+  const signInWithGoogleToken = async (idToken: string) => {
+    const res = await api.googleNative(idToken);
+    await persist(res.token, res.user);
+  };
+
   const signOut = async () => {
     await SecureStore.deleteItemAsync(TOKEN_KEY).catch(() => {});
     setToken(null);
@@ -62,7 +86,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        loading,
+        signIn,
+        signUp,
+        signInWithApple,
+        signInWithGoogleToken,
+        signOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

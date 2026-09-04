@@ -1,3 +1,4 @@
+import type { StudentProfile, AwardLetter } from '@shared';
 import { API_BASE_URL } from './config';
 
 // The signed-in user, as returned by the backend (never includes the hash).
@@ -16,7 +17,7 @@ export interface AuthResponse {
 }
 
 interface RequestOptions {
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
   token?: string | null;
 }
@@ -49,4 +50,99 @@ export const api = {
   me: (token: string) => request<{ user: AuthUser }>('/auth/me', { token }),
   deleteAccount: (token: string) =>
     request<{ ok: boolean }>('/auth/account', { method: 'DELETE', token }),
+
+  // Native OAuth: post the provider's identity token; the backend verifies it
+  // (signature + issuer + audience) and returns our own session token.
+  appleNative: (identityToken: string) =>
+    request<AuthResponse>('/auth/apple/native', { method: 'POST', body: { identityToken } }),
+  googleNative: (idToken: string) =>
+    request<AuthResponse>('/auth/google/native', { method: 'POST', body: { idToken } }),
+
+  // ── Students ──────────────────────────────────────────────────────
+  listStudents: (token: string) =>
+    request<{ students: StudentSummary[] }>('/students', { token }),
+  createStudent: (token: string, profile: Partial<StudentProfile>) =>
+    request<StudentBundle>('/students', { method: 'POST', token, body: { profile } }),
+  getStudent: (token: string, id: string) =>
+    request<StudentBundle>(`/students/${id}`, { token }),
+  patchStudent: (token: string, id: string, fields: Partial<StudentProfile>) =>
+    request<{ profile: StudentProfile }>(`/students/${id}`, {
+      method: 'PATCH',
+      token,
+      body: fields,
+    }),
+
+  // ── Award letters (per student; upsert by client-generated id) ─────
+  putAwardLetter: (token: string, studentId: string, letter: AwardLetter) =>
+    request<{ awardLetter: AwardLetter }>(
+      `/students/${studentId}/award-letters/${letter.id}`,
+      { method: 'PUT', token, body: letter },
+    ),
+  deleteAwardLetter: (token: string, studentId: string, letterId: string) =>
+    request<{ ok: boolean }>(`/students/${studentId}/award-letters/${letterId}`, {
+      method: 'DELETE',
+      token,
+    }),
+
+  // ── College Scorecard (net price by income) ───────────────────────
+  scorecardStatus: () => request<{ enabled: boolean }>('/scorecard/status'),
+  searchColleges: (token: string, q: string, state?: string) => {
+    const params = new URLSearchParams({ q });
+    if (state) params.set('state', state);
+    return request<{ results: CollegeFinancials[] }>(
+      `/scorecard/search?${params.toString()}`,
+      { token },
+    );
+  },
 };
+
+// A row from GET /api/students (list view — not the full profile).
+export interface StudentSummary {
+  id: string;
+  fullName: string;
+  gradYear: number;
+  currentGrade: string;
+  updatedAt: string;
+}
+
+// A College Scorecard result (mirrors the server's Financials shape). Net price
+// is what a family actually pays after aid, by income band — the headline number.
+export interface CollegeFinancials {
+  unitId: number;
+  name: string;
+  city: string;
+  state: string;
+  ownership: 'public' | 'private' | 'other';
+  enrollment: number | null;
+  sat25: number | null;
+  sat75: number | null;
+  websiteUrl: string | null;
+  netPriceByIncome: {
+    band0_30k: number | null;
+    band30_48k: number | null;
+    band48_75k: number | null;
+    band75_110k: number | null;
+    band110k_plus: number | null;
+  };
+  costOfAttendance: number | null;
+  admissionRate: number | null;
+  medianDebt: number | null;
+  earnings10yr: number | null;
+  earnings6yr: number | null;
+  netPriceCalculatorUrl: string | null;
+  source: string;
+  vintage: string;
+}
+
+// The full per-student bundle from GET /api/students/:id. Only `profile` and the
+// counts are used on mobile so far; the rest are typed loosely.
+export interface StudentBundle {
+  profile: StudentProfile;
+  savedColleges: string[];
+  finalFive: unknown[];
+  timelineTasks: unknown[];
+  essays: unknown[];
+  campusVisits: unknown[];
+  awardLetters: AwardLetter[];
+  courseEntries: unknown[];
+}
