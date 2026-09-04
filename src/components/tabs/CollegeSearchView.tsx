@@ -430,7 +430,7 @@ export const CollegeSearchView: React.FC<CollegeSearchViewProps> = ({ setActiveT
             </div>
 
             {/* Net price by income (College Scorecard) */}
-            <NetPriceSection collegeName={selectedCollegeForModal.name} state={selectedCollegeForModal.state} />
+            <NetPriceSection collegeName={selectedCollegeForModal.name} state={selectedCollegeForModal.state} unitId={selectedCollegeForModal.unitId} />
 
             {/* Pathway fit — pre-med (physician) and nursing notes for this college */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

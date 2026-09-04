@@ -28,6 +28,7 @@ export function scorecardToCollege(f: Financials): College {
   const coa = f.costOfAttendance ?? 0;
   return {
     id: `${SCORECARD_PREFIX}${f.unitId}`,
+    unitId: f.unitId,
     name: f.name,
     location: [f.city, f.state].filter(Boolean).join(', '),
     city: f.city,

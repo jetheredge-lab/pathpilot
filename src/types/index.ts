@@ -63,6 +63,7 @@ export type AdmissionChance = 'Likely / Safety' | 'Target' | 'Reach' | 'High Rea
 
 export interface College {
   id: string;
+  unitId?: number; // IPEDS UNITID = College Scorecard id, for exact data matching
   name: string;
   shortName?: string;
   location: string;

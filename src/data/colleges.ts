@@ -4,6 +4,7 @@ export const COLLEGES_DATABASE: College[] = [
   // --- NORTHEAST ---
   {
     id: 'upenn',
+    unitId: 215062,
     name: 'University of Pennsylvania',
     shortName: 'Penn',
     location: 'Philadelphia, PA',
@@ -50,6 +51,7 @@ export const COLLEGES_DATABASE: College[] = [
   },
   {
     id: 'jhu',
+    unitId: 162928,
     name: 'Johns Hopkins University',
     shortName: 'Johns Hopkins',
     location: 'Baltimore, MD',
@@ -95,6 +97,7 @@ export const COLLEGES_DATABASE: College[] = [
   },
   {
     id: 'pitt',
+    unitId: 215293,
     name: 'University of Pittsburgh',
     shortName: 'Pitt',
     location: 'Pittsburgh, PA',
@@ -141,6 +144,7 @@ export const COLLEGES_DATABASE: College[] = [
   },
   {
     id: 'villanova',
+    unitId: 216597,
     name: 'Villanova University',
     shortName: 'Villanova',
     location: 'Villanova, PA',
@@ -188,6 +192,7 @@ export const COLLEGES_DATABASE: College[] = [
   },
   {
     id: 'bc',
+    unitId: 164924,
     name: 'Boston College',
     shortName: 'Boston College',
     location: 'Chestnut Hill, MA',
@@ -234,6 +239,7 @@ export const COLLEGES_DATABASE: College[] = [
   },
   {
     id: 'northeastern',
+    unitId: 167358,
     name: 'Northeastern University',
     shortName: 'Northeastern',
     location: 'Boston, MA',
@@ -281,6 +287,7 @@ export const COLLEGES_DATABASE: College[] = [
   // --- MIDWEST ---
   {
     id: 'case_western',
+    unitId: 201645,
     name: 'Case Western Reserve University',
     shortName: 'Case Western',
     location: 'Cleveland, OH',
@@ -327,6 +334,7 @@ export const COLLEGES_DATABASE: College[] = [
   },
   {
     id: 'umich',
+    unitId: 170976,
     name: 'University of Michigan',
     shortName: 'Michigan',
     location: 'Ann Arbor, MI',
@@ -373,6 +381,7 @@ export const COLLEGES_DATABASE: College[] = [
   },
   {
     id: 'purdue',
+    unitId: 243780,
     name: 'Purdue University',
     shortName: 'Purdue',
     location: 'West Lafayette, IN',
@@ -419,6 +428,7 @@ export const COLLEGES_DATABASE: College[] = [
   },
   {
     id: 'osu',
+    unitId: 204796,
     name: 'Ohio State University',
     shortName: 'Ohio State',
     location: 'Columbus, OH',
@@ -464,6 +474,7 @@ export const COLLEGES_DATABASE: College[] = [
   },
   {
     id: 'slu',
+    unitId: 179159,
     name: 'Saint Louis University',
     shortName: 'SLU',
     location: 'St. Louis, MO',
@@ -509,6 +520,7 @@ export const COLLEGES_DATABASE: College[] = [
   },
   {
     id: 'creighton',
+    unitId: 181002,
     name: 'Creighton University',
     shortName: 'Creighton',
     location: 'Omaha, NE',
@@ -556,6 +568,7 @@ export const COLLEGES_DATABASE: College[] = [
   // --- SOUTH ---
   {
     id: 'emory',
+    unitId: 139658,
     name: 'Emory University',
     shortName: 'Emory',
     location: 'Atlanta, GA',
@@ -602,6 +615,7 @@ export const COLLEGES_DATABASE: College[] = [
   },
   {
     id: 'unc',
+    unitId: 199120,
     name: 'UNC Chapel Hill',
     shortName: 'UNC',
     location: 'Chapel Hill, NC',
@@ -648,6 +662,7 @@ export const COLLEGES_DATABASE: College[] = [
   },
   {
     id: 'duke',
+    unitId: 198419,
     name: 'Duke University',
     shortName: 'Duke',
     location: 'Durham, NC',
@@ -694,6 +709,7 @@ export const COLLEGES_DATABASE: College[] = [
   },
   {
     id: 'vanderbilt',
+    unitId: 221999,
     name: 'Vanderbilt University',
     shortName: 'Vanderbilt',
     location: 'Nashville, TN',
@@ -739,6 +755,7 @@ export const COLLEGES_DATABASE: College[] = [
   },
   {
     id: 'belmont',
+    unitId: 219709,
     name: 'Belmont University',
     shortName: 'Belmont',
     location: 'Nashville, TN',
@@ -784,6 +801,7 @@ export const COLLEGES_DATABASE: College[] = [
   },
   {
     id: 'uf',
+    unitId: 134130,
     name: 'University of Florida',
     shortName: 'UF',
     location: 'Gainesville, FL',
@@ -830,6 +848,7 @@ export const COLLEGES_DATABASE: College[] = [
   },
   {
     id: 'uva',
+    unitId: 234076,
     name: 'University of Virginia',
     shortName: 'UVA',
     location: 'Charlottesville, VA',
@@ -879,6 +898,7 @@ export const COLLEGES_DATABASE: College[] = [
   // --- WEST ---
   {
     id: 'ucla',
+    unitId: 110662,
     name: 'University of California, Los Angeles',
     shortName: 'UCLA',
     location: 'Los Angeles, CA',
@@ -924,6 +944,7 @@ export const COLLEGES_DATABASE: College[] = [
   },
   {
     id: 'uw',
+    unitId: 236948,
     name: 'University of Washington',
     shortName: 'UW Seattle',
     location: 'Seattle, WA',
@@ -969,6 +990,7 @@ export const COLLEGES_DATABASE: College[] = [
   },
   {
     id: 'gonzaga',
+    unitId: 235316,
     name: 'Gonzaga University',
     shortName: 'Gonzaga',
     location: 'Spokane, WA',

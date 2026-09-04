@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Wallet, ExternalLink, Loader2 } from 'lucide-react';
-import { getScorecardEnabled, lookupFinancials, Financials } from '../../api/scorecard';
+import { getScorecardEnabled, lookupFinancials, getFinancialsByUnitId, Financials } from '../../api/scorecard';
 
 const BANDS: { key: keyof Financials['netPriceByIncome']; label: string }[] = [
   { key: 'band0_30k', label: '$0–30k' },
@@ -15,7 +15,7 @@ const usd = (n: number | null) =>
 const pct = (n: number | null) => (n == null ? '—' : `${Math.round(n * 100)}%`);
 
 // Fetches and displays College Scorecard net-price-by-income for a college.
-export const NetPriceSection: React.FC<{ collegeName: string; state?: string }> = ({ collegeName, state }) => {
+export const NetPriceSection: React.FC<{ collegeName: string; state?: string; unitId?: number }> = ({ collegeName, state, unitId }) => {
   const [enabled, setEnabled] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
   const [fin, setFin] = useState<Financials | null>(null);
@@ -29,7 +29,9 @@ export const NetPriceSection: React.FC<{ collegeName: string; state?: string }> 
       setEnabled(on);
       if (!on) return;
       setLoading(true);
-      const data = await lookupFinancials(collegeName, state);
+      // Exact UNITID (curated + Scorecard-discovered colleges) hits the right
+      // school directly; otherwise fall back to a name+state lookup.
+      const data = unitId ? await getFinancialsByUnitId(unitId) : await lookupFinancials(collegeName, state);
       if (cancelled) return;
       setFin(data);
       setLoading(false);
@@ -37,7 +39,7 @@ export const NetPriceSection: React.FC<{ collegeName: string; state?: string }> 
     return () => {
       cancelled = true;
     };
-  }, [collegeName, state]);
+  }, [collegeName, state, unitId]);
 
   // Don't render the section at all if the integration isn't configured.
   if (enabled === false) return null;
