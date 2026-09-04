@@ -1,3 +1,4 @@
+import type { StudentProfile } from '@shared';
 import { API_BASE_URL } from './config';
 
 // The signed-in user, as returned by the backend (never includes the hash).
@@ -16,7 +17,7 @@ export interface AuthResponse {
 }
 
 interface RequestOptions {
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
   token?: string | null;
 }
@@ -56,4 +57,40 @@ export const api = {
     request<AuthResponse>('/auth/apple/native', { method: 'POST', body: { identityToken } }),
   googleNative: (idToken: string) =>
     request<AuthResponse>('/auth/google/native', { method: 'POST', body: { idToken } }),
+
+  // ── Students ──────────────────────────────────────────────────────
+  listStudents: (token: string) =>
+    request<{ students: StudentSummary[] }>('/students', { token }),
+  createStudent: (token: string, profile: Partial<StudentProfile>) =>
+    request<StudentBundle>('/students', { method: 'POST', token, body: { profile } }),
+  getStudent: (token: string, id: string) =>
+    request<StudentBundle>(`/students/${id}`, { token }),
+  patchStudent: (token: string, id: string, fields: Partial<StudentProfile>) =>
+    request<{ profile: StudentProfile }>(`/students/${id}`, {
+      method: 'PATCH',
+      token,
+      body: fields,
+    }),
 };
+
+// A row from GET /api/students (list view — not the full profile).
+export interface StudentSummary {
+  id: string;
+  fullName: string;
+  gradYear: number;
+  currentGrade: string;
+  updatedAt: string;
+}
+
+// The full per-student bundle from GET /api/students/:id. Only `profile` and the
+// counts are used on mobile so far; the rest are typed loosely.
+export interface StudentBundle {
+  profile: StudentProfile;
+  savedColleges: string[];
+  finalFive: unknown[];
+  timelineTasks: unknown[];
+  essays: unknown[];
+  campusVisits: unknown[];
+  awardLetters: unknown[];
+  courseEntries: unknown[];
+}
