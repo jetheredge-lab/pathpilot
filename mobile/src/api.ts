@@ -71,6 +71,17 @@ export const api = {
       token,
       body: fields,
     }),
+
+  // ── College Scorecard (net price by income) ───────────────────────
+  scorecardStatus: () => request<{ enabled: boolean }>('/scorecard/status'),
+  searchColleges: (token: string, q: string, state?: string) => {
+    const params = new URLSearchParams({ q });
+    if (state) params.set('state', state);
+    return request<{ results: CollegeFinancials[] }>(
+      `/scorecard/search?${params.toString()}`,
+      { token },
+    );
+  },
 };
 
 // A row from GET /api/students (list view — not the full profile).
@@ -80,6 +91,35 @@ export interface StudentSummary {
   gradYear: number;
   currentGrade: string;
   updatedAt: string;
+}
+
+// A College Scorecard result (mirrors the server's Financials shape). Net price
+// is what a family actually pays after aid, by income band — the headline number.
+export interface CollegeFinancials {
+  unitId: number;
+  name: string;
+  city: string;
+  state: string;
+  ownership: 'public' | 'private' | 'other';
+  enrollment: number | null;
+  sat25: number | null;
+  sat75: number | null;
+  websiteUrl: string | null;
+  netPriceByIncome: {
+    band0_30k: number | null;
+    band30_48k: number | null;
+    band48_75k: number | null;
+    band75_110k: number | null;
+    band110k_plus: number | null;
+  };
+  costOfAttendance: number | null;
+  admissionRate: number | null;
+  medianDebt: number | null;
+  earnings10yr: number | null;
+  earnings6yr: number | null;
+  netPriceCalculatorUrl: string | null;
+  source: string;
+  vintage: string;
 }
 
 // The full per-student bundle from GET /api/students/:id. Only `profile` and the

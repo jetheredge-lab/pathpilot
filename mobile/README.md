@@ -34,6 +34,14 @@ npx expo start           # press i (iOS sim), a (Android), or scan in Expo Go
   are set the button explains it isn't configured yet.
 - **Home tab** — shows the signed-in user and entitlement (Pro/free) read from
   the server, so a web purchaser is Pro on mobile automatically.
+- **Profile tab** — lists the account's students (multi-student aware), creates
+  one when none exist, computes the pathway-aware junior-year readiness score
+  from `@shared`, and edits core fields (name, grade, pathway, GPAs, SAT/ACT,
+  clinical/service hours) against the per-resource students API via React Query.
+- **Colleges tab** — searches any U.S. college via the College Scorecard API and
+  shows **net price by family income** (what families actually pay after aid),
+  admission rate, SAT range, median debt, and 10-year earnings, with a link to
+  each school's Net Price Calculator.
 - **Pathways tab** — renders all career pathways from `@shared` (title, BLS pay,
   job growth, years, source count + verified date).
 
@@ -49,7 +57,9 @@ npx expo start           # press i (iOS sim), a (Android), or scan in Expo Go
 
 ## Not yet wired (next steps)
 
-- **Student data / planner / colleges screens** → ports of the web views.
+- **Saved colleges / Final Five, timeline, award-letter comparison** → remaining
+  ports of the web views (award-letter logic already lives in `@shared`).
+- **Save-to-student from college search** → lands with the saved-colleges list.
 - **Payments** (IAP vs. external) → deferred pending the product decision.
 
 ## Layout

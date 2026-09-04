@@ -25,6 +25,13 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="colleges"
+        options={{
+          title: 'Colleges',
+          tabBarIcon: ({ focused }) => <Text style={{ fontSize: 18, opacity: focused ? 1 : 0.5 }}>🏫</Text>,
+        }}
+      />
+      <Tabs.Screen
         name="pathways"
         options={{
           title: 'Pathways',
