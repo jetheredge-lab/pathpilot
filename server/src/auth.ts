@@ -36,10 +36,17 @@ interface SessionPayload {
   sub: string; // user id
 }
 
-export function issueSession(res: Response, userId: string): void {
-  const token = jwt.sign({ sub: userId } satisfies SessionPayload, JWT_SECRET, {
+// Sign a session JWT. Returned to native clients (Bearer) and set as the web
+// cookie by issueSession.
+export function signToken(userId: string): string {
+  return jwt.sign({ sub: userId } satisfies SessionPayload, JWT_SECRET, {
     expiresIn: `${SESSION_TTL_DAYS}d`,
   });
+}
+
+// Sets the web session cookie and returns the raw token (for native clients).
+export function issueSession(res: Response, userId: string): string {
+  const token = signToken(userId);
   res.cookie(SESSION_COOKIE, token, {
     httpOnly: true,
     secure: COOKIE_SECURE,
@@ -47,6 +54,7 @@ export function issueSession(res: Response, userId: string): void {
     maxAge: SESSION_TTL_DAYS * 24 * 60 * 60 * 1000,
     path: '/',
   });
+  return token;
 }
 
 export function clearSession(res: Response): void {
@@ -59,7 +67,11 @@ export interface AuthedRequest extends Request {
 
 // Gate for authenticated routes. 401s when no valid session cookie is present.
 export function requireAuth(req: AuthedRequest, res: Response, next: NextFunction): void {
-  const token = req.cookies?.[SESSION_COOKIE];
+  // Native clients send `Authorization: Bearer <token>`; the web sends the
+  // httpOnly session cookie.
+  const authHeader = req.headers.authorization;
+  const bearer = authHeader?.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+  const token = bearer || req.cookies?.[SESSION_COOKIE];
   if (!token) {
     res.status(401).json({ error: 'Not authenticated' });
     return;

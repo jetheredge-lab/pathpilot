@@ -48,8 +48,8 @@ authRouter.post('/signup', async (req, res) => {
   const user = await prisma.user.create({
     data: { email, passwordHash: await hashPassword(password) },
   });
-  issueSession(res, user.id);
-  res.status(201).json({ user: publicUser(user) });
+  const token = issueSession(res, user.id);
+  res.status(201).json({ user: publicUser(user), token });
 });
 
 // POST /api/auth/login
@@ -73,8 +73,8 @@ authRouter.post('/login', async (req, res) => {
     return;
   }
 
-  issueSession(res, user.id);
-  res.json({ user: publicUser(user) });
+  const token = issueSession(res, user.id);
+  res.json({ user: publicUser(user), token });
 });
 
 // POST /api/auth/logout
