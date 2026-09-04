@@ -169,23 +169,24 @@ export async function getByName(name: string, state?: string): Promise<Financial
 // Search operating colleges by name (+ optional state). Warms the cache so
 // opening any result's detail is instant.
 export async function searchColleges(query: string, state?: string, page = 0): Promise<Financials[]> {
+  // The API's `sort` is unreliable for name searches, so fetch a wide set and
+  // rank client-side: bigger campuses (the flagship) first over satellites.
   const params: Record<string, string> = {
     'school.name': query,
     'school.operating': 'true',
-    // Largest campuses first, so the main campus outranks satellite locations.
-    sort: 'latest.student.size:desc',
     fields: FIELDS,
-    per_page: '20',
+    per_page: '40',
     page: String(page),
   };
   if (state) params['school.state'] = state;
   const json = await apiGet(params);
   const results = (json?.results ?? []) as Record<string, any>[];
-  // Keep degree-granting campuses that report enrollment; drop empty satellites.
   const parsed = results
     .filter((r) => r?.id)
     .map(parse)
-    .filter((f) => f.enrollment != null && f.enrollment > 0);
+    .filter((f) => f.enrollment != null && f.enrollment > 0)
+    .sort((a, b) => (b.enrollment ?? 0) - (a.enrollment ?? 0))
+    .slice(0, 20);
   await Promise.all(
     parsed.map((f) =>
       prisma.collegeFinancials.upsert({
