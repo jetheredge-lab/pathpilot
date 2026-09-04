@@ -14,11 +14,18 @@ const CACHE_TTL_DAYS = 60;
 const FIELDS = [
   'id',
   'school.name',
+  'school.city',
   'school.state',
   'school.ownership',
+  'school.school_url',
   'school.price_calculator_url',
+  'latest.student.size',
   'latest.cost.attendance.academic_year',
   'latest.admissions.admission_rate.overall',
+  'latest.admissions.sat_scores.25th_percentile.critical_reading',
+  'latest.admissions.sat_scores.25th_percentile.math',
+  'latest.admissions.sat_scores.75th_percentile.critical_reading',
+  'latest.admissions.sat_scores.75th_percentile.math',
   'latest.aid.median_debt.completers.overall',
   'latest.earnings.10_yrs_after_entry.median',
   'latest.earnings.6_yrs_after_entry.median',
@@ -37,7 +44,13 @@ const FIELDS = [
 export interface Financials {
   unitId: number;
   name: string;
+  city: string;
+  state: string;
   ownership: 'public' | 'private' | 'other';
+  enrollment: number | null;
+  sat25: number | null;
+  sat75: number | null;
+  websiteUrl: string | null;
   // Net price the family actually pays, by income band (annual USD).
   netPriceByIncome: {
     band0_30k: number | null;
@@ -63,10 +76,20 @@ function parse(r: Record<string, any>): Financials {
   const ownership: Financials['ownership'] = ownershipCode === 1 ? 'public' : ownershipCode === 2 || ownershipCode === 3 ? 'private' : 'other';
   const tier = ownership === 'public' ? 'public' : 'private';
   const np = (band: string) => num(r[`latest.cost.net_price.${tier}.by_income_level.${band}`]);
+  const cr25 = num(r['latest.admissions.sat_scores.25th_percentile.critical_reading']);
+  const m25 = num(r['latest.admissions.sat_scores.25th_percentile.math']);
+  const cr75 = num(r['latest.admissions.sat_scores.75th_percentile.critical_reading']);
+  const m75 = num(r['latest.admissions.sat_scores.75th_percentile.math']);
   return {
     unitId: r['id'],
     name: r['school.name'] ?? '',
+    city: r['school.city'] ?? '',
+    state: r['school.state'] ?? '',
     ownership,
+    enrollment: num(r['latest.student.size']),
+    sat25: cr25 != null && m25 != null ? cr25 + m25 : null,
+    sat75: cr75 != null && m75 != null ? cr75 + m75 : null,
+    websiteUrl: r['school.school_url'] ?? null,
     netPriceByIncome: {
       band0_30k: np('0-30000'),
       band30_48k: np('30001-48000'),
@@ -141,4 +164,30 @@ export async function getByName(name: string, state?: string): Promise<Financial
   const unitId = await lookupUnitId(name, state);
   if (!unitId) return null;
   return getFinancials(unitId);
+}
+
+// Search operating colleges by name (+ optional state). Warms the cache so
+// opening any result's detail is instant.
+export async function searchColleges(query: string, state?: string, page = 0): Promise<Financials[]> {
+  const params: Record<string, string> = {
+    'school.name': query,
+    'school.operating': 'true',
+    fields: FIELDS,
+    per_page: '20',
+    page: String(page),
+  };
+  if (state) params['school.state'] = state;
+  const json = await apiGet(params);
+  const results = (json?.results ?? []) as Record<string, any>[];
+  const parsed = results.filter((r) => r?.id).map(parse);
+  await Promise.all(
+    parsed.map((f) =>
+      prisma.collegeFinancials.upsert({
+        where: { unitId: f.unitId },
+        create: { unitId: f.unitId, data: f as any },
+        update: { data: f as any, fetchedAt: new Date() },
+      }),
+    ),
+  );
+  return parsed;
 }

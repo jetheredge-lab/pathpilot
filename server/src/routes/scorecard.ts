@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { scorecardEnabled, getFinancials, getByName } from '../scorecard.js';
+import { scorecardEnabled, getFinancials, getByName, searchColleges } from '../scorecard.js';
 import { requireAuth } from '../auth.js';
 
 export const scorecardRouter = Router();
@@ -7,6 +7,27 @@ export const scorecardRouter = Router();
 // Public: lets the client decide whether to show the net-price section.
 scorecardRouter.get('/status', (_req, res) => {
   res.json({ enabled: scorecardEnabled });
+});
+
+// Search all operating U.S. colleges by name (+ optional state).
+scorecardRouter.get('/search', requireAuth, async (req, res) => {
+  if (!scorecardEnabled) {
+    res.status(503).json({ error: 'Scorecard not configured' });
+    return;
+  }
+  const q = String(req.query.q ?? '').trim();
+  const state = req.query.state ? String(req.query.state) : undefined;
+  if (q.length < 2) {
+    res.json({ results: [] });
+    return;
+  }
+  try {
+    const results = await searchColleges(q, state);
+    res.json({ results });
+  } catch (e) {
+    console.error('[scorecard] search failed', (e as Error).message);
+    res.json({ results: [] });
+  }
 });
 
 // Resolve a college by name (+ optional state) and return its financials.

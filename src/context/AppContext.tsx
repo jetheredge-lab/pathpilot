@@ -12,6 +12,8 @@ import { COLLEGES_DATABASE } from '../data/colleges';
 import { DEFAULT_TIMELINE_TASKS } from '../data/timelineDefaults';
 import { SAMPLE_STUDENT_PROFILE, SAMPLE_FINAL_FIVE, SAMPLE_ESSAYS } from '../data/sampleProfile';
 import { computeReadinessScore } from '../lib/readiness';
+import { getFinancialsByUnitId, Financials } from '../api/scorecard';
+import { scorecardToCollege, isScorecardId, unitIdFromCollegeId } from '../lib/scorecardCollege';
 import {
   StudentSummary,
   StudentBundle,
@@ -75,6 +77,7 @@ interface AppContextType {
   exportDataJSON: () => string;
   importDataJSON: (jsonString: string) => boolean;
   colleges: College[];
+  addExternalColleges: (list: College[]) => void;
   syncStatus: SyncStatus;
   readinessScore: number;
   completedTasksCount: number;
@@ -139,6 +142,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [essays, setEssays] = useState<EssayDraft[]>([]);
   const [campusVisits, setCampusVisits] = useState<CampusVisit[]>([]);
   const [awardLetters, setAwardLetters] = useState<AwardLetter[]>([]);
+  // Scorecard-discovered colleges (adapted to the College shape), merged into
+  // the college pool so every `colleges.find(id)` resolves them.
+  const [externalColleges, setExternalColleges] = useState<College[]>([]);
 
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('syncing');
   const [loading, setLoading] = useState(true);
@@ -169,6 +175,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     timelineTasks: freshDefaultTasks(),
   });
 
+  const addExternalColleges = (list: College[]) => {
+    setExternalColleges((prev) => {
+      const map = new Map(prev.map((c) => [c.id, c]));
+      for (const c of list) map.set(c.id, c);
+      return Array.from(map.values());
+    });
+  };
+
+  // Rebuild College objects for any saved Scorecard schools (ids like sc_215293)
+  // so they resolve everywhere the app looks up colleges by id.
+  const rehydrateExternal = async (collegeIds: string[]) => {
+    const unitIds = [
+      ...new Set(
+        collegeIds.filter(isScorecardId).map(unitIdFromCollegeId).filter((n): n is number => n != null),
+      ),
+    ];
+    if (unitIds.length === 0) return;
+    const fins = await Promise.all(unitIds.map(getFinancialsByUnitId));
+    const adapted = fins.filter((f): f is Financials => !!f).map(scorecardToCollege);
+    if (adapted.length) addExternalColleges(adapted);
+  };
+
   // Initial load: fetch the account's students, then the selected student's data.
   useEffect(() => {
     let cancelled = false;
@@ -194,7 +222,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (cancelled) return;
 
       setStudents(list);
-      if (bundle) applyBundle(bundle);
+      if (bundle) {
+        applyBundle(bundle);
+        void rehydrateExternal([...bundle.savedColleges, ...bundle.finalFive.map((f) => f.collegeId)]);
+      }
       if (selectedId) {
         setCurrentStudentId(selectedId);
         localStorage.setItem(CURRENT_STUDENT_KEY, selectedId);
@@ -214,6 +245,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const b = await getStudent(id);
     if (b) {
       applyBundle(b);
+      void rehydrateExternal([...b.savedColleges, ...b.finalFive.map((f) => f.collegeId)]);
       setCurrentStudentId(id);
       localStorage.setItem(CURRENT_STUDENT_KEY, id);
       setSyncStatus('synced');
@@ -604,7 +636,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         resetAllData,
         exportDataJSON,
         importDataJSON,
-        colleges: COLLEGES_DATABASE,
+        colleges: [...COLLEGES_DATABASE, ...externalColleges],
+        addExternalColleges,
         syncStatus,
         readinessScore,
         completedTasksCount,

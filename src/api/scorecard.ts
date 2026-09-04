@@ -3,7 +3,13 @@
 export interface Financials {
   unitId: number;
   name: string;
+  city: string;
+  state: string;
   ownership: 'public' | 'private' | 'other';
+  enrollment: number | null;
+  sat25: number | null;
+  sat75: number | null;
+  websiteUrl: string | null;
   netPriceByIncome: {
     band0_30k: number | null;
     band30_48k: number | null;
@@ -29,6 +35,32 @@ export async function getScorecardEnabled(): Promise<boolean> {
     return !!json.enabled;
   } catch {
     return false;
+  }
+}
+
+// Search all operating U.S. colleges by name (+ optional state).
+export async function searchColleges(q: string, state?: string): Promise<Financials[]> {
+  try {
+    const params = new URLSearchParams({ q });
+    if (state) params.set('state', state);
+    const res = await fetch(`/api/scorecard/search?${params.toString()}`, { credentials: 'include' });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.results ?? [];
+  } catch {
+    return [];
+  }
+}
+
+// Fetch financials directly by IPEDS UNITID.
+export async function getFinancialsByUnitId(unitId: number): Promise<Financials | null> {
+  try {
+    const res = await fetch(`/api/scorecard/${unitId}`, { credentials: 'include' });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json.financials ?? null;
+  } catch {
+    return null;
   }
 }
 

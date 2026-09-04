@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Search, 
   Filter, 
@@ -24,6 +24,8 @@ import { College, AdmissionChance } from '../../types';
 import { getAdmissionChance } from '../../data/colleges';
 import { Modal } from '../common/Modal';
 import { NetPriceSection } from '../common/NetPriceSection';
+import { searchColleges } from '../../api/scorecard';
+import { scorecardToCollege } from '../../lib/scorecardCollege';
 import { TabType } from '../Navbar';
 
 interface CollegeSearchViewProps {
@@ -31,14 +33,15 @@ interface CollegeSearchViewProps {
 }
 
 export const CollegeSearchView: React.FC<CollegeSearchViewProps> = ({ setActiveTab }) => {
-  const { 
-    colleges, 
-    profile, 
-    savedColleges, 
-    toggleSaveCollege, 
-    finalFive, 
-    addToFinalFive, 
-    removeFromFinalFive 
+  const {
+    colleges,
+    profile,
+    savedColleges,
+    toggleSaveCollege,
+    finalFive,
+    addToFinalFive,
+    removeFromFinalFive,
+    addExternalColleges,
   } = useApp();
 
   // Filters
@@ -48,6 +51,25 @@ export const CollegeSearchView: React.FC<CollegeSearchViewProps> = ({ setActiveT
   const [selectedRegion, setSelectedRegion] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<'all' | 'Public' | 'Private'>('all');
   const [sortBy, setSortBy] = useState<'match' | 'acceptance_asc' | 'acceptance_desc' | 'sat_desc' | 'tuition_asc'>('match');
+
+  // When the query is specific enough, search all ~6,000 U.S. colleges via the
+  // federal Scorecard and merge the results into the pool so they appear below.
+  const [scLoading, setScLoading] = useState(false);
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (q.length < 3) {
+      setScLoading(false);
+      return;
+    }
+    setScLoading(true);
+    const t = setTimeout(async () => {
+      const results = await searchColleges(q);
+      addExternalColleges(results.map(scorecardToCollege));
+      setScLoading(false);
+    }, 450);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery]);
 
   // Modal states
   const [selectedCollegeForModal, setSelectedCollegeForModal] = useState<College | null>(null);
@@ -169,11 +191,14 @@ export const CollegeSearchView: React.FC<CollegeSearchViewProps> = ({ setActiveT
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
             <input
               type="text"
-              placeholder="Search by college name, city, state, or hospital..."
+              placeholder="Search any U.S. college by name…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 bg-slate-50"
             />
+            <p className="text-[10px] text-slate-400 mt-1 ml-1">
+              {scLoading ? 'Searching all ~6,000 U.S. colleges…' : 'Type a name to search every U.S. college (federal College Scorecard data).'}
+            </p>
           </div>
 
           {/* Program Track */}
