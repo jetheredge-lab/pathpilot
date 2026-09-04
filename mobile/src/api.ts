@@ -1,4 +1,4 @@
-import type { StudentProfile } from '@shared';
+import type { StudentProfile, AwardLetter } from '@shared';
 import { API_BASE_URL } from './config';
 
 // The signed-in user, as returned by the backend (never includes the hash).
@@ -72,6 +72,18 @@ export const api = {
       body: fields,
     }),
 
+  // ── Award letters (per student; upsert by client-generated id) ─────
+  putAwardLetter: (token: string, studentId: string, letter: AwardLetter) =>
+    request<{ awardLetter: AwardLetter }>(
+      `/students/${studentId}/award-letters/${letter.id}`,
+      { method: 'PUT', token, body: letter },
+    ),
+  deleteAwardLetter: (token: string, studentId: string, letterId: string) =>
+    request<{ ok: boolean }>(`/students/${studentId}/award-letters/${letterId}`, {
+      method: 'DELETE',
+      token,
+    }),
+
   // ── College Scorecard (net price by income) ───────────────────────
   scorecardStatus: () => request<{ enabled: boolean }>('/scorecard/status'),
   searchColleges: (token: string, q: string, state?: string) => {
@@ -131,6 +143,6 @@ export interface StudentBundle {
   timelineTasks: unknown[];
   essays: unknown[];
   campusVisits: unknown[];
-  awardLetters: unknown[];
+  awardLetters: AwardLetter[];
   courseEntries: unknown[];
 }

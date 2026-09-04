@@ -15,6 +15,7 @@ import {
 } from '@shared';
 import { api, type StudentBundle } from '@/api';
 import { useAuth } from '@/auth';
+import { StudentSelector } from '@/StudentSelector';
 
 const GRADES: StudentProfile['currentGrade'][] = [
   '10th (Sophomore)',
@@ -179,29 +180,14 @@ export default function Profile() {
   return (
     <ScrollView className="flex-1 bg-slate-50" contentContainerClassName="p-5 gap-4">
       {/* Multi-student selector (Phase 3: one account, many students). */}
-      {students.length > 1 ? (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mb-1">
-          <View className="flex-row gap-2">
-            {students.map((s) => {
-              const on = s.id === activeId;
-              return (
-                <Pressable
-                  key={s.id}
-                  className={`rounded-full px-4 py-2 ${on ? 'bg-brand' : 'bg-white border border-slate-300'}`}
-                  onPress={() => {
-                    setSelectedId(s.id);
-                    setEditing(false);
-                  }}
-                >
-                  <Text className={on ? 'text-white font-semibold' : 'text-ink'}>
-                    {s.fullName || 'Unnamed'}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        </ScrollView>
-      ) : null}
+      <StudentSelector
+        students={students}
+        activeId={activeId}
+        onSelect={(id) => {
+          setSelectedId(id);
+          setEditing(false);
+        }}
+      />
 
       {bundleQuery.isLoading || !bundle ? (
         <View className="items-center py-12">

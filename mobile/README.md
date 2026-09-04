@@ -42,6 +42,11 @@ npx expo start           # press i (iOS sim), a (Android), or scan in Expo Go
   shows **net price by family income** (what families actually pay after aid),
   admission rate, SAT range, median debt, and 10-year earnings, with a link to
   each school's Net Price Calculator.
+- **Awards tab** — enter each college's financial-aid award letter (costs,
+  grants, work-study, loans) and compare them: net cost this year, total
+  borrowing over four years, the lowest-net-cost offer flagged, and a warning
+  when loans are presented as "awards." Money math comes from `@shared`;
+  presents numbers, never a recommendation.
 - **Pathways tab** — renders all career pathways from `@shared` (title, BLS pay,
   job growth, years, source count + verified date).
 
@@ -57,8 +62,7 @@ npx expo start           # press i (iOS sim), a (Android), or scan in Expo Go
 
 ## Not yet wired (next steps)
 
-- **Saved colleges / Final Five, timeline, award-letter comparison** → remaining
-  ports of the web views (award-letter logic already lives in `@shared`).
+- **Saved colleges / Final Five, timeline** → remaining ports of the web views.
 - **Save-to-student from college search** → lands with the saved-colleges list.
 - **Payments** (IAP vs. external) → deferred pending the product decision.
 
