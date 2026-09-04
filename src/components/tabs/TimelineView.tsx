@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { 
+import { AidTimeline } from '../common/AidTimeline';
+import {
   Calendar, 
   CheckCircle2, 
   Circle, 
@@ -84,7 +85,10 @@ export const TimelineView: React.FC = () => {
 
   return (
     <div className="space-y-8 pb-12">
-      
+
+      {/* Financial-aid eligibility window (prior-prior year) */}
+      <AidTimeline />
+
       {/* Header */}
       <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
