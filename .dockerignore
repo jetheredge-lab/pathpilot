@@ -1,6 +1,8 @@
 node_modules
 dist
 server
+mobile
+shared
 .git
 .env
 *.log
