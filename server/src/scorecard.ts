@@ -181,11 +181,15 @@ export async function searchColleges(query: string, state?: string, page = 0): P
   if (state) params['school.state'] = state;
   const json = await apiGet(params);
   const results = (json?.results ?? []) as Record<string, any>[];
+  // Rank: names that actually contain the query first (so "Texas A&M" beats the
+  // larger "UT Austin"), then by enrollment so the flagship outranks satellites.
+  const ql = query.toLowerCase().trim();
+  const nameScore = (f: Financials) => (f.name.toLowerCase().includes(ql) ? 1 : 0);
   const parsed = results
     .filter((r) => r?.id)
     .map(parse)
     .filter((f) => f.enrollment != null && f.enrollment > 0)
-    .sort((a, b) => (b.enrollment ?? 0) - (a.enrollment ?? 0))
+    .sort((a, b) => nameScore(b) - nameScore(a) || (b.enrollment ?? 0) - (a.enrollment ?? 0))
     .slice(0, 20);
   await Promise.all(
     parsed.map((f) =>
