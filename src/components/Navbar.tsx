@@ -15,7 +15,8 @@ import {
   Sparkles,
   Stethoscope,
   LogOut,
-  Trash2
+  Trash2,
+  Scale
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
@@ -30,8 +31,9 @@ export type TabType =
   | 'timeline' 
   | 'profile' 
   | 'resume' 
-  | 'essays' 
-  | 'campus_visits';
+  | 'essays'
+  | 'campus_visits'
+  | 'award_letters';
 
 interface NavbarProps {
   activeTab: TabType;
@@ -103,6 +105,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
     { id: 'resume', label: 'Resume & Brag Sheet', icon: <FileText className="w-4 h-4" /> },
     { id: 'essays', label: 'Essay & Letter Studio', icon: <PenTool className="w-4 h-4" /> },
     { id: 'campus_visits', label: 'Campus Visits', icon: <MapPin className="w-4 h-4" /> },
+    { id: 'award_letters', label: 'Award Letters', icon: <Scale className="w-4 h-4 text-emerald-600" /> },
   ];
 
   const handleCopyJSON = () => {

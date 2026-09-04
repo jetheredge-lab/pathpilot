@@ -9,6 +9,7 @@ import {
   taskOut,
   essayOut,
   visitOut,
+  awardLetterOut,
 } from '../serialize.js';
 
 export const studentsRouter = Router();
@@ -115,7 +116,27 @@ function buildChildCreates(body: Record<string, any>) {
         visitedSimulationLabOrHospital: !!v.visitedSimulationLabOrHospital,
       }))
     : [];
-  return { savedColleges, finalFive, timelineTasks, essays, campusVisits };
+  const awardLetters = Array.isArray(body.awardLetters)
+    ? body.awardLetters.map((a: any) => ({
+        id: a.id,
+        collegeId: a.collegeId ?? null,
+        collegeName: a.collegeName ?? '',
+        academicYear: a.academicYear ?? '',
+        tuitionAndFees: a.tuitionAndFees ?? 0,
+        housingAndMeals: a.housingAndMeals ?? 0,
+        booksAndSupplies: a.booksAndSupplies ?? 0,
+        transportation: a.transportation ?? 0,
+        personalExpenses: a.personalExpenses ?? 0,
+        grants: asJson(a.grants ?? []),
+        workStudy: a.workStudy ?? 0,
+        loanSubsidized: a.loanSubsidized ?? 0,
+        loanUnsubsidized: a.loanUnsubsidized ?? 0,
+        loanParentPlus: a.loanParentPlus ?? 0,
+        loanOther: a.loanOther ?? 0,
+        notes: a.notes ?? '',
+      }))
+    : [];
+  return { savedColleges, finalFive, timelineTasks, essays, campusVisits, awardLetters };
 }
 
 // Load the full bundle for a student.
@@ -128,6 +149,7 @@ async function loadBundle(studentId: string) {
       timelineTasks: { orderBy: { createdAt: 'asc' } },
       essays: { orderBy: { createdAt: 'desc' } },
       campusVisits: { orderBy: { createdAt: 'desc' } },
+      awardLetters: { orderBy: { createdAt: 'asc' } },
     },
   });
   if (!student) return null;
@@ -138,6 +160,7 @@ async function loadBundle(studentId: string) {
     timelineTasks: student.timelineTasks.map(taskOut),
     essays: student.essays.map(essayOut),
     campusVisits: student.campusVisits.map(visitOut),
+    awardLetters: student.awardLetters.map(awardLetterOut),
   };
 }
 
@@ -167,6 +190,7 @@ studentsRouter.post('/', async (req: AuthedRequest, res) => {
       timelineTasks: { create: children.timelineTasks },
       essays: { create: children.essays },
       campusVisits: { create: children.campusVisits },
+        awardLetters: { create: children.awardLetters },
     } as unknown as Prisma.StudentCreateInput,
   });
   const bundle = await loadBundle(student.id);
@@ -212,6 +236,7 @@ studentsRouter.put('/:id/state', async (req: AuthedRequest, res) => {
     prisma.timelineTask.deleteMany({ where: { studentId: id } }),
     prisma.essayDraft.deleteMany({ where: { studentId: id } }),
     prisma.campusVisit.deleteMany({ where: { studentId: id } }),
+    prisma.awardLetter.deleteMany({ where: { studentId: id } }),
     prisma.student.update({
       where: { id },
       data: {
@@ -221,6 +246,7 @@ studentsRouter.put('/:id/state', async (req: AuthedRequest, res) => {
         timelineTasks: { create: children.timelineTasks },
         essays: { create: children.essays },
         campusVisits: { create: children.campusVisits },
+        awardLetters: { create: children.awardLetters },
       } as unknown as Prisma.StudentUpdateInput,
     }),
   ]);
@@ -404,5 +430,43 @@ studentsRouter.delete('/:id/campus-visits/:visitId', async (req: AuthedRequest, 
   const id = await ownStudentId(req, res);
   if (!id) return;
   await prisma.campusVisit.deleteMany({ where: { id: req.params.visitId, studentId: id } });
+  res.json({ ok: true });
+});
+
+// ── Award letters (upsert by client-provided id, scoped to the student) ──
+
+studentsRouter.put('/:id/award-letters/:letterId', async (req: AuthedRequest, res) => {
+  const id = await ownStudentId(req, res);
+  if (!id) return;
+  const a = (req.body ?? {}) as any;
+  const letterId = req.params.letterId;
+  const fields = {
+    collegeId: a.collegeId ?? null,
+    collegeName: a.collegeName ?? '',
+    academicYear: a.academicYear ?? '',
+    tuitionAndFees: a.tuitionAndFees ?? 0,
+    housingAndMeals: a.housingAndMeals ?? 0,
+    booksAndSupplies: a.booksAndSupplies ?? 0,
+    transportation: a.transportation ?? 0,
+    personalExpenses: a.personalExpenses ?? 0,
+    grants: asJson(a.grants ?? []),
+    workStudy: a.workStudy ?? 0,
+    loanSubsidized: a.loanSubsidized ?? 0,
+    loanUnsubsidized: a.loanUnsubsidized ?? 0,
+    loanParentPlus: a.loanParentPlus ?? 0,
+    loanOther: a.loanOther ?? 0,
+    notes: a.notes ?? '',
+  };
+  const existing = await prisma.awardLetter.findFirst({ where: { id: letterId, studentId: id }, select: { id: true } });
+  const letter = existing
+    ? await prisma.awardLetter.update({ where: { id: letterId }, data: fields })
+    : await prisma.awardLetter.create({ data: { id: letterId, studentId: id, ...fields } });
+  res.json({ awardLetter: awardLetterOut(letter) });
+});
+
+studentsRouter.delete('/:id/award-letters/:letterId', async (req: AuthedRequest, res) => {
+  const id = await ownStudentId(req, res);
+  if (!id) return;
+  await prisma.awardLetter.deleteMany({ where: { id: req.params.letterId, studentId: id } });
   res.json({ ok: true });
 });

@@ -6,6 +6,7 @@ import type {
   TimelineTask,
   EssayDraft,
   CampusVisit,
+  AwardLetter,
 } from '@prisma/client';
 
 // Profile fields the client may set on a Student (whitelist for writes).
@@ -98,6 +99,27 @@ export function essayOut(e: EssayDraft) {
     outline: e.outline,
     status: e.status,
     lastEdited: e.lastEdited,
+  };
+}
+
+export function awardLetterOut(a: AwardLetter) {
+  return {
+    id: a.id,
+    collegeId: a.collegeId ?? undefined,
+    collegeName: a.collegeName,
+    academicYear: a.academicYear,
+    tuitionAndFees: a.tuitionAndFees,
+    housingAndMeals: a.housingAndMeals,
+    booksAndSupplies: a.booksAndSupplies,
+    transportation: a.transportation,
+    personalExpenses: a.personalExpenses,
+    grants: a.grants,
+    workStudy: a.workStudy,
+    loanSubsidized: a.loanSubsidized,
+    loanUnsubsidized: a.loanUnsubsidized,
+    loanParentPlus: a.loanParentPlus,
+    loanOther: a.loanOther,
+    notes: a.notes,
   };
 }
 

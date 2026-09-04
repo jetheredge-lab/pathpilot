@@ -78,6 +78,7 @@ model Student {
   timelineTasks TimelineTask[]
   essays        EssayDraft[]
   campusVisits  CampusVisit[]
+  awardLetters  AwardLetter[]
 
   @@index([userId])
   @@map("students")
@@ -155,6 +156,38 @@ model EssayDraft {
 
   @@index([studentId])
   @@map("essay_drafts")
+}
+
+model AwardLetter {
+  // id is client-provided (created at runtime with a unique id, never seeded).
+  id               String   @id
+  studentId        String
+  student          Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  collegeId        String?
+  collegeName      String   @default("")
+  academicYear     String   @default("")
+  // Direct costs (billed by the school)
+  tuitionAndFees   Int      @default(0)
+  housingAndMeals  Int      @default(0)
+  // Indirect costs (estimated, not billed)
+  booksAndSupplies Int      @default(0)
+  transportation   Int      @default(0)
+  personalExpenses Int      @default(0)
+  // Gift aid (not repaid): list of { id, name, amount, renewable, condition }
+  grants           Json     @default("[]")
+  // Self-help
+  workStudy        Int      @default(0)
+  // Loans (borrowed, must be repaid)
+  loanSubsidized   Int      @default(0)
+  loanUnsubsidized Int      @default(0)
+  loanParentPlus   Int      @default(0)
+  loanOther        Int      @default(0)
+  notes            String   @default("")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([studentId])
+  @@map("award_letters")
 }
 
 model CampusVisit {

@@ -180,6 +180,40 @@ export interface EssayDraft {
   lastEdited: string;
 }
 
+export interface AwardLetterGrant {
+  id: string;
+  name: string;
+  amount: number;
+  renewable: boolean; // renews each year vs. one-time / freshman-only
+  condition: string; // e.g. "Maintain 3.0 GPA"
+}
+
+// A financial-aid award letter, entered by the family, normalized to a common
+// shape so offers can be compared apples-to-apples. All amounts are annual USD.
+export interface AwardLetter {
+  id: string;
+  collegeId?: string; // optional link to a saved college
+  collegeName: string;
+  academicYear: string; // e.g. "2027–2028"
+  // Direct costs (billed by the school)
+  tuitionAndFees: number;
+  housingAndMeals: number;
+  // Indirect costs (estimated, not billed)
+  booksAndSupplies: number;
+  transportation: number;
+  personalExpenses: number;
+  // Gift aid — money that is NOT repaid
+  grants: AwardLetterGrant[];
+  // Self-help — money that must be earned
+  workStudy: number;
+  // Loans — money that must be repaid
+  loanSubsidized: number;
+  loanUnsubsidized: number;
+  loanParentPlus: number;
+  loanOther: number;
+  notes: string;
+}
+
 export interface CampusVisit {
   id: string;
   collegeId: string;

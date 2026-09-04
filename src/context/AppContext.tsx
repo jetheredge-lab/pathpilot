@@ -5,7 +5,8 @@ import {
   TimelineTask,
   FinalFiveItem,
   EssayDraft,
-  CampusVisit
+  CampusVisit,
+  AwardLetter
 } from '../types';
 import { COLLEGES_DATABASE } from '../data/colleges';
 import { DEFAULT_TIMELINE_TASKS } from '../data/timelineDefaults';
@@ -31,6 +32,8 @@ import {
   deleteEssayApi,
   putCampusVisit,
   deleteCampusVisitApi,
+  putAwardLetter,
+  deleteAwardLetterApi,
 } from '../api/students';
 
 // Backend sync status, surfaced in the UI so the user knows their data is safe.
@@ -64,6 +67,9 @@ interface AppContextType {
   campusVisits: CampusVisit[];
   saveCampusVisit: (visit: CampusVisit) => void;
   deleteCampusVisit: (visitId: string) => void;
+  awardLetters: AwardLetter[];
+  saveAwardLetter: (letter: AwardLetter) => void;
+  deleteAwardLetter: (letterId: string) => void;
   loadSampleData: () => void;
   resetAllData: () => void;
   exportDataJSON: () => string;
@@ -132,6 +138,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [timelineTasks, setTimelineTasks] = useState<TimelineTask[]>([]);
   const [essays, setEssays] = useState<EssayDraft[]>([]);
   const [campusVisits, setCampusVisits] = useState<CampusVisit[]>([]);
+  const [awardLetters, setAwardLetters] = useState<AwardLetter[]>([]);
 
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('syncing');
   const [loading, setLoading] = useState(true);
@@ -149,6 +156,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setTimelineTasks(b.timelineTasks);
     setEssays(b.essays);
     setCampusVisits(b.campusVisits);
+    setAwardLetters(b.awardLetters ?? []);
   };
 
   // Default-task ids are the same constants for everyone, but each task row is
@@ -420,6 +428,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     track(deleteCampusVisitApi(id, visitId));
   };
 
+  // ── Award letters ──
+  const saveAwardLetter = (letter: AwardLetter) => {
+    const id = currentStudentId;
+    if (!id) return;
+    setAwardLetters((prev) => {
+      const idx = prev.findIndex((l) => l.id === letter.id);
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = letter;
+        return next;
+      }
+      return [...prev, letter];
+    });
+    track(putAwardLetter(id, letter));
+  };
+
+  const deleteAwardLetter = (letterId: string) => {
+    const id = currentStudentId;
+    if (!id) return;
+    setAwardLetters((prev) => prev.filter((l) => l.id !== letterId));
+    track(deleteAwardLetterApi(id, letterId));
+  };
+
   // ── Bulk operations (replace the whole current student) ──
   const bulkReplace = async (bundle: Partial<StudentBundle>) => {
     const id = currentStudentId;
@@ -449,6 +480,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       timelineTasks: freshDefaultTasks(),
       essays: SAMPLE_ESSAYS,
       campusVisits: [],
+      awardLetters: [],
     };
     applyBundle(sample as StudentBundle); // optimistic
     void bulkReplace(sample);
@@ -462,6 +494,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       timelineTasks: freshDefaultTasks().map((t) => ({ ...t, completed: false })),
       essays: [],
       campusVisits: [],
+      awardLetters: [],
     };
     applyBundle(empty as StudentBundle);
     void bulkReplace(empty);
@@ -475,6 +508,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       timelineTasks,
       essays,
       campusVisits,
+      awardLetters,
       exportedAt: new Date().toISOString(),
     };
     return JSON.stringify(backup, null, 2);
@@ -492,8 +526,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if ('timelineTasks' in parsed && !Array.isArray(parsed.timelineTasks)) return false;
       if ('essays' in parsed && !Array.isArray(parsed.essays)) return false;
       if ('campusVisits' in parsed && !Array.isArray(parsed.campusVisits)) return false;
+      if ('awardLetters' in parsed && !Array.isArray(parsed.awardLetters)) return false;
 
-      const knownKeys = ['profile', 'savedColleges', 'finalFive', 'timelineTasks', 'essays', 'campusVisits'];
+      const knownKeys = ['profile', 'savedColleges', 'finalFive', 'timelineTasks', 'essays', 'campusVisits', 'awardLetters'];
       if (!knownKeys.some((key) => key in parsed)) return false;
 
       const bundle: Partial<StudentBundle> = {
@@ -503,6 +538,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         timelineTasks: parsed.timelineTasks ?? timelineTasks,
         essays: parsed.essays ?? essays,
         campusVisits: parsed.campusVisits ?? campusVisits,
+        awardLetters: parsed.awardLetters ?? awardLetters,
       };
       applyBundle(bundle as StudentBundle); // optimistic
       void bulkReplace(bundle);
@@ -561,6 +597,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         campusVisits,
         saveCampusVisit,
         deleteCampusVisit,
+        awardLetters,
+        saveAwardLetter,
+        deleteAwardLetter,
         loadSampleData,
         resetAllData,
         exportDataJSON,

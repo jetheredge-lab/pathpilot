@@ -1,6 +1,6 @@
 // Client for the RoundsAhead per-student REST API. Auth is the httpOnly session
 // cookie, so every call uses credentials: 'include'.
-import { StudentProfile, FinalFiveItem, TimelineTask, EssayDraft, CampusVisit } from '../types';
+import { StudentProfile, FinalFiveItem, TimelineTask, EssayDraft, CampusVisit, AwardLetter } from '../types';
 
 const API = '/api';
 
@@ -19,6 +19,7 @@ export interface StudentBundle {
   timelineTasks: TimelineTask[];
   essays: EssayDraft[];
   campusVisits: CampusVisit[];
+  awardLetters: AwardLetter[];
 }
 
 interface Res<T = any> {
@@ -109,4 +110,10 @@ export function putCampusVisit(id: string, visit: CampusVisit): Promise<Res> {
 }
 export function deleteCampusVisitApi(id: string, visitId: string): Promise<Res> {
   return req(`/students/${id}/campus-visits/${visitId}`, { method: 'DELETE' });
+}
+export function putAwardLetter(id: string, letter: AwardLetter): Promise<Res> {
+  return req(`/students/${id}/award-letters/${letter.id}`, { method: 'PUT', body: JSON.stringify(letter) });
+}
+export function deleteAwardLetterApi(id: string, letterId: string): Promise<Res> {
+  return req(`/students/${id}/award-letters/${letterId}`, { method: 'DELETE' });
 }
