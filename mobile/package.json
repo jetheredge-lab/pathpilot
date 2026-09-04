@@ -31,5 +31,22 @@
     "babel-plugin-module-resolver": "^5.0.2",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.3.3"
+  },
+  "//": "Metro is transitive and unpinned; npm otherwise grabs latest (0.87+), which drops the ./src/lib/TerminalReporter export @expo/metro-config@0.19.x still imports. Pin the whole family to the version Expo SDK 52 ships.",
+  "overrides": {
+    "metro": "0.81.0",
+    "metro-babel-transformer": "0.81.0",
+    "metro-cache": "0.81.0",
+    "metro-cache-key": "0.81.0",
+    "metro-config": "0.81.0",
+    "metro-core": "0.81.0",
+    "metro-file-map": "0.81.0",
+    "metro-minify-terser": "0.81.0",
+    "metro-resolver": "0.81.0",
+    "metro-runtime": "0.81.0",
+    "metro-source-map": "0.81.0",
+    "metro-symbolicate": "0.81.0",
+    "metro-transform-plugins": "0.81.0",
+    "metro-transform-worker": "0.81.0"
   }
 }
