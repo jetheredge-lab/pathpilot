@@ -1,9 +1,18 @@
 import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import { readFileSync, existsSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
 import jwt from 'jsonwebtoken';
-import { prisma } from '../prisma.js';
-import { issueSession } from '../auth.js';
+import { issueSession, signToken } from '../auth.js';
+import { findOrCreateUser } from '../oauthUsers.js';
+import { publicUser } from '../publicUser.js';
+import {
+  verifyGoogleIdToken,
+  verifyAppleIdentityToken,
+  googleNativeAudiences,
+  appleNativeAudiences,
+  OAuthVerifyError,
+} from '../oauthVerify.js';
 
 // ── Configuration (from env) ────────────────────────────────────────
 const APP_BASE_URL = (process.env.APP_BASE_URL ?? '').replace(/\/$/, '');
@@ -56,30 +65,67 @@ function appleClientSecret(): string {
   });
 }
 
-// Find the user for a verified provider identity, linking by email or creating.
-async function findOrCreateUser(provider: 'google' | 'apple', providerId: string, email: string) {
-  const idField = provider === 'google' ? 'googleId' : 'appleId';
-
-  const byProvider = await prisma.user.findFirst({ where: { [idField]: providerId } });
-  if (byProvider) return byProvider;
-
-  const byEmail = await prisma.user.findUnique({ where: { email } });
-  if (byEmail) {
-    return prisma.user.update({
-      where: { id: byEmail.id },
-      data: { [idField]: providerId, emailVerified: true },
-    });
-  }
-  return prisma.user.create({ data: { email, emailVerified: true, [idField]: providerId } });
-}
-
 const appRedirect = (path = '/app/') => `${APP_BASE_URL || ''}${path}`;
 
 export const oauthRouter = Router();
 
-// Which providers the client should offer buttons for.
+// Which providers the client should offer buttons for. `google`/`apple` are the
+// web (authorization-code) flows; `*Native` are the on-device identity-token
+// flows the mobile app uses.
 oauthRouter.get('/providers', (_req, res) => {
-  res.json({ google: googleEnabled, apple: appleEnabled });
+  res.json({
+    google: googleEnabled,
+    apple: appleEnabled,
+    googleNative: googleNativeAudiences().length > 0,
+    appleNative: appleNativeAudiences().length > 0,
+  });
+});
+
+// ── Native token exchange (mobile) ──────────────────────────────────
+// The device performs the provider sign-in itself and posts us the resulting
+// identity token. We verify it (signature + issuer + audience) and mint our own
+// session token. No cookie — native clients authenticate with the Bearer token.
+//
+// These are credential-equivalent endpoints, so they get their own throttle
+// (the web redirect routes above deliberately are not rate-limited).
+const nativeLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many attempts, please try again later' },
+});
+
+oauthRouter.post('/google/native', nativeLimiter, async (req, res) => {
+  const idToken = (req.body as { idToken?: string })?.idToken;
+  try {
+    const identity = await verifyGoogleIdToken(String(idToken ?? ''));
+    const user = await findOrCreateUser('google', identity.sub, identity.email);
+    res.json({ user: publicUser(user), token: signToken(user.id) });
+  } catch (e) {
+    if (e instanceof OAuthVerifyError) {
+      res.status(401).json({ error: e.message });
+      return;
+    }
+    console.error('[oauth] google native exchange failed', e);
+    res.status(500).json({ error: 'Sign-in failed' });
+  }
+});
+
+oauthRouter.post('/apple/native', nativeLimiter, async (req, res) => {
+  const identityToken = (req.body as { identityToken?: string })?.identityToken;
+  try {
+    const identity = await verifyAppleIdentityToken(String(identityToken ?? ''));
+    const user = await findOrCreateUser('apple', identity.sub, identity.email);
+    res.json({ user: publicUser(user), token: signToken(user.id) });
+  } catch (e) {
+    if (e instanceof OAuthVerifyError) {
+      res.status(401).json({ error: e.message });
+      return;
+    }
+    console.error('[oauth] apple native exchange failed', e);
+    res.status(500).json({ error: 'Sign-in failed' });
+  }
 });
 
 // ── Google (OIDC authorization code) ────────────────────────────────

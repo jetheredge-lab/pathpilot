@@ -49,4 +49,11 @@ export const api = {
   me: (token: string) => request<{ user: AuthUser }>('/auth/me', { token }),
   deleteAccount: (token: string) =>
     request<{ ok: boolean }>('/auth/account', { method: 'DELETE', token }),
+
+  // Native OAuth: post the provider's identity token; the backend verifies it
+  // (signature + issuer + audience) and returns our own session token.
+  appleNative: (identityToken: string) =>
+    request<AuthResponse>('/auth/apple/native', { method: 'POST', body: { identityToken } }),
+  googleNative: (idToken: string) =>
+    request<AuthResponse>('/auth/google/native', { method: 'POST', body: { idToken } }),
 };
