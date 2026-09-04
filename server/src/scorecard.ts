@@ -172,6 +172,8 @@ export async function searchColleges(query: string, state?: string, page = 0): P
   const params: Record<string, string> = {
     'school.name': query,
     'school.operating': 'true',
+    // Largest campuses first, so the main campus outranks satellite locations.
+    sort: 'latest.student.size:desc',
     fields: FIELDS,
     per_page: '20',
     page: String(page),
@@ -179,7 +181,11 @@ export async function searchColleges(query: string, state?: string, page = 0): P
   if (state) params['school.state'] = state;
   const json = await apiGet(params);
   const results = (json?.results ?? []) as Record<string, any>[];
-  const parsed = results.filter((r) => r?.id).map(parse);
+  // Keep degree-granting campuses that report enrollment; drop empty satellites.
+  const parsed = results
+    .filter((r) => r?.id)
+    .map(parse)
+    .filter((f) => f.enrollment != null && f.enrollment > 0);
   await Promise.all(
     parsed.map((f) =>
       prisma.collegeFinancials.upsert({
