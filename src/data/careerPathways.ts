@@ -445,5 +445,420 @@ export const CAREER_PATHWAYS: Record<string, CareerPathway> = {
       { label: 'BLS — Healthcare Occupations (outlook & wages)', url: 'https://www.bls.gov/ooh/healthcare/' },
       { label: 'Explore Health Careers (AAMC-supported)', url: 'https://explorehealthcareers.org/' }
     ]
+  },
+
+  physician_assistant: {
+    id: 'physician_assistant',
+    title: 'Physician Assistant (PA)',
+    shortTitle: 'Physician Assistant (PA)',
+    roleDescription: 'A licensed clinician who examines patients, diagnoses illness, orders and interprets tests, and prescribes treatment as part of a physician-led team, across virtually every specialty. PAs enter practice faster than physicians and move between specialties without new residencies.',
+    totalYearsAfterHighSchool: '6 - 7 Years (4 undergrad + ~27-month master’s)',
+    averageSalary: 'Median $135,880/yr (BLS, May 2024)',
+    jobGrowth: '+21% for physician assistants, 2024–2034 (much faster than average)',
+    undergradMajorStrategy: 'Any major works if you complete the science prerequisites (Biology, General & Organic Chemistry, Anatomy & Physiology, Microbiology, Statistics, Psychology). PA schools require substantial hands-on patient-care experience (often 1,000–2,000+ hours as an EMT, CNA, medical assistant, or scribe) and a strong GPA. Most programs use the CASPA application.',
+    dailyRoutine: 'Taking histories and performing exams, diagnosing and treating conditions, ordering/interpreting labs and imaging, assisting in procedures and surgery, prescribing medications, and counseling patients — collaborating with supervising physicians.',
+    stages: [
+      {
+        stageNumber: 1,
+        stageName: 'High School Junior & Senior Years',
+        timeframe: 'Grades 11 & 12',
+        degreeEarned: 'High School Diploma',
+        keyRequirements: [
+          'Strong grades in Biology, Chemistry, and Math',
+          'Explore patient-care roles (a summer CNA or EMT certification is a head start on required hours)',
+          'Shadow PAs and other clinicians; volunteer in healthcare settings',
+          'Target colleges with the PA prerequisites and good pre-health advising'
+        ],
+        criticalJuniorHighSchoolPrep: 'Getting an early patient-care credential (CNA/EMT) helps you bank the direct-care hours PA schools require while you’re still in high school or early college.',
+        description: 'Build the science foundation and start accumulating hands-on patient-care experience.',
+        annualCostEstimate: '$0 (Public HS)'
+      },
+      {
+        stageNumber: 2,
+        stageName: 'Undergraduate College (Pre-PA)',
+        timeframe: '4 Years',
+        degreeEarned: 'Bachelor’s degree (any major)',
+        keyRequirements: [
+          'Complete PA prerequisites (Anatomy & Physiology, Micro, Chem, O-Chem, Stats, Psychology)',
+          'Maintain a competitive GPA (3.4+ recommended)',
+          'Accumulate 1,000–2,000+ direct patient-care hours',
+          'Apply through CASPA; some programs require the GRE or PA-CAT'
+        ],
+        criticalJuniorHighSchoolPrep: 'Confirm each target PA program’s exact prerequisites and patient-care-hour minimums early — they vary by school.',
+        description: 'Finish a bachelor’s while completing prerequisites and hands-on clinical hours.',
+        annualCostEstimate: '$10,000 - $75,000 / year (varies widely by school & aid)'
+      },
+      {
+        stageNumber: 3,
+        stageName: 'PA Master’s Program & Licensure',
+        timeframe: '~27 Months',
+        degreeEarned: 'Master’s degree; PA-C after PANCE',
+        keyRequirements: [
+          'Attend an ARC-PA–accredited PA program (classroom + clinical rotations)',
+          'Complete supervised clinical rotations across specialties',
+          'Pass the PANCE (Physician Assistant National Certifying Exam) from the NCCPA',
+          'Obtain a state license to practice'
+        ],
+        criticalJuniorHighSchoolPrep: 'PA programs are graduate-level and full-time; you generally can’t work during them.',
+        description: 'Intensive master’s training that leads to licensure and practice — much faster than the physician route.',
+        annualCostEstimate: '$25,000 - $55,000 / year'
+      }
+    ],
+    pros: [
+      'Practice medicine in about 6–7 years total, far faster than becoming a physician',
+      'Move between specialties without a new residency',
+      'Strong pay and among the fastest-growing health careers',
+      'Lower total training time and debt than physician pathways'
+    ],
+    challenges: [
+      'Substantial patient-care hours required before you can even apply',
+      'PA school admission is competitive and graduate-level',
+      'Practice under a physician-led team (scope varies by state)',
+      'Prerequisites and hour requirements differ by program — careful planning needed'
+    ],
+    comparisonPoints: {
+      autonomyLevel: 'Diagnoses, treats, and prescribes within a physician-led team; scope varies by state',
+      callFrequency: 'Specialty- and setting-dependent',
+      trainingLength: '~6–7 years (4 undergrad + ~27-month master’s)',
+      debtBurden: 'Moderate — well below physician pathways'
+    },
+    lastVerified: '2026-09-04',
+    dataSources: [
+      { label: 'BLS — Physician Assistants (median $135,880; +21% outlook 2024–34)', url: 'https://www.bls.gov/ooh/healthcare/physician-assistants.htm' },
+      { label: 'ARC-PA — accreditation of PA programs', url: 'https://www.arc-pa.org/' },
+      { label: 'PAEA / CASPA — PA program application', url: 'https://paeaonline.org/' }
+    ]
+  },
+
+  pharmacist: {
+    id: 'pharmacist',
+    title: 'Pharmacist (PharmD)',
+    shortTitle: 'Pharmacist (PharmD)',
+    roleDescription: 'A medication expert who dispenses prescriptions, counsels patients on safe use, checks for interactions, and increasingly provides clinical services like immunizations and medication management in pharmacies, hospitals, and clinics.',
+    totalYearsAfterHighSchool: '6 - 8 Years (2–4 pre-pharmacy + 4-year PharmD)',
+    averageSalary: 'Median $140,910/yr (BLS, May 2024)',
+    jobGrowth: '+5% for pharmacists, 2024–2034 (faster than average)',
+    undergradMajorStrategy: 'Complete pre-pharmacy prerequisites (Biology, General & Organic Chemistry, Physics, Anatomy & Physiology, Calculus, Statistics). Many students finish a bachelor’s first; some enter after 2–3 years, and a few "0–6" programs admit directly from high school. Programs use PharmCAS; the PCAT is now waived by many schools.',
+    dailyRoutine: 'Verifying and dispensing prescriptions, checking for drug interactions and dosing, counseling patients, administering vaccines, collaborating with prescribers, and (in clinical roles) managing complex medication regimens.',
+    stages: [
+      {
+        stageNumber: 1,
+        stageName: 'High School Junior & Senior Years',
+        timeframe: 'Grades 11 & 12',
+        degreeEarned: 'High School Diploma',
+        keyRequirements: [
+          'Strong Chemistry, Biology, and Math foundation',
+          'Consider "0–6" direct-admit PharmD programs if you’re sure now',
+          'Work or volunteer in a pharmacy; shadow pharmacists in retail and hospital settings',
+          'Target colleges with the pre-pharmacy prerequisites'
+        ],
+        criticalJuniorHighSchoolPrep: 'If pharmacy is a strong interest, research 0–6 direct-entry PharmD programs — they lock in your seat from freshman year.',
+        description: 'Build a chemistry-heavy foundation and explore the profession in real pharmacies.',
+        annualCostEstimate: '$0 (Public HS)'
+      },
+      {
+        stageNumber: 2,
+        stageName: 'Pre-Pharmacy Coursework',
+        timeframe: '2 - 4 Years',
+        degreeEarned: 'Prerequisites (often a bachelor’s degree)',
+        keyRequirements: [
+          'Complete prerequisites (Gen & Organic Chem, Bio, Physics, A&P, Calculus, Stats)',
+          'Maintain a competitive GPA',
+          'Apply via PharmCAS (PCAT waived by many programs)',
+          'Gain pharmacy experience as a technician or intern'
+        ],
+        criticalJuniorHighSchoolPrep: 'Check whether your target PharmD schools require a full bachelor’s or admit after two years.',
+        description: 'Finish the science prerequisites (and usually a degree) required to enter PharmD programs.',
+        annualCostEstimate: '$10,000 - $60,000 / year'
+      },
+      {
+        stageNumber: 3,
+        stageName: 'Doctor of Pharmacy (PharmD) & Licensure',
+        timeframe: '4 Years',
+        degreeEarned: 'PharmD; RPh after NAPLEX',
+        keyRequirements: [
+          'Attend an ACPE-accredited PharmD program (didactic + experiential rotations)',
+          'Complete introductory and advanced pharmacy practice experiences',
+          'Pass the NAPLEX and a law exam (MPJE) for state licensure',
+          'Optional residency (PGY-1/PGY-2) for clinical or specialized roles'
+        ],
+        criticalJuniorHighSchoolPrep: 'The PharmD is a professional doctorate; plan for four full-time years and significant tuition.',
+        description: 'Doctoral pharmacy training culminating in licensure to practice.',
+        annualCostEstimate: '$20,000 - $65,000 / year'
+      }
+    ],
+    pros: [
+      'High, stable pay as a medication expert',
+      'Direct-admit "0–6" programs can shorten the path',
+      'Varied settings: community, hospital, clinical, industry, research',
+      'Growing clinical role (immunizations, medication management)'
+    ],
+    challenges: [
+      'Four-year professional doctorate with meaningful tuition',
+      'Job market and setting mix have shifted in recent years — research demand where you want to work',
+      'Licensure requires passing NAPLEX and a state law exam',
+      'Some clinical roles now expect a residency'
+    ],
+    comparisonPoints: {
+      autonomyLevel: 'Independent licensed practice within pharmacy scope; expanding clinical services',
+      callFrequency: 'Shift-based; retail and hospital differ',
+      trainingLength: '6–8 years (2–4 pre-pharmacy + 4-year PharmD)',
+      debtBurden: 'Moderate to high depending on program and prior degree'
+    },
+    lastVerified: '2026-09-04',
+    dataSources: [
+      { label: 'BLS — Pharmacists (median $140,910; +5% outlook 2024–34)', url: 'https://www.bls.gov/ooh/healthcare/pharmacists.htm' },
+      { label: 'ACPE — accreditation of PharmD programs', url: 'https://www.acpe-accredit.org/' },
+      { label: 'PharmCAS — PharmD application', url: 'https://www.pharmcas.org/' }
+    ]
+  },
+
+  dentist: {
+    id: 'dentist',
+    title: 'Dentist (DDS / DMD)',
+    shortTitle: 'Dentist (DDS/DMD)',
+    roleDescription: 'A doctor of oral health who diagnoses and treats problems with teeth, gums, and the mouth — from cleanings and fillings to extractions, restorations, and (with specialty training) orthodontics, oral surgery, and more.',
+    totalYearsAfterHighSchool: '8 Years (4 undergrad + 4 dental school)',
+    averageSalary: 'Median $176,110/yr (BLS, May 2024)',
+    jobGrowth: '+6% for dentists, 2024–2034 (faster than average)',
+    undergradMajorStrategy: 'Any major is fine with the prerequisites: Biology, General & Organic Chemistry, Physics, Biochemistry, and often English/Math. Aim for a strong GPA and a competitive DAT (Dental Admission Test) score, plus dentist shadowing and manual-dexterity activities. Apply through AADSAS.',
+    dailyRoutine: 'Examining patients, taking and reading X-rays, diagnosing oral disease, performing procedures (fillings, crowns, extractions), administering local anesthesia, and leading a team of hygienists and assistants; many dentists run their own practices.',
+    stages: [
+      {
+        stageNumber: 1,
+        stageName: 'High School Junior & Senior Years',
+        timeframe: 'Grades 11 & 12',
+        degreeEarned: 'High School Diploma',
+        keyRequirements: [
+          'Strong Biology, Chemistry, and Math grades',
+          'Shadow dentists (general and specialists) and volunteer in the community',
+          'Develop hand skills / fine-motor hobbies (valued in dentistry)',
+          'Target colleges with pre-dental advising and prerequisites'
+        ],
+        criticalJuniorHighSchoolPrep: 'Start shadowing dentists early — admissions committees look for genuine, documented exposure to the profession.',
+        description: 'Build the science foundation and demonstrate real interest in dentistry.',
+        annualCostEstimate: '$0 (Public HS)'
+      },
+      {
+        stageNumber: 2,
+        stageName: 'Undergraduate College (Pre-Dental)',
+        timeframe: '4 Years',
+        degreeEarned: 'Bachelor’s degree (any major)',
+        keyRequirements: [
+          'Complete prerequisites (Bio, Gen & Organic Chem, Physics, Biochem)',
+          'Maintain a competitive science and cumulative GPA',
+          'Take the DAT (Dental Admission Test)',
+          'Shadowing hours and letters; apply through AADSAS'
+        ],
+        criticalJuniorHighSchoolPrep: 'Confirm each dental school’s prerequisites and average DAT/GPA to plan a competitive application.',
+        description: 'Earn a bachelor’s while completing prerequisites and preparing a strong dental-school application.',
+        annualCostEstimate: '$10,000 - $75,000 / year'
+      },
+      {
+        stageNumber: 3,
+        stageName: 'Dental School & Licensure',
+        timeframe: '4 Years',
+        degreeEarned: 'DDS or DMD (equivalent degrees)',
+        keyRequirements: [
+          'Attend a CODA-accredited dental school (basic sciences + clinical training)',
+          'Pass the Integrated National Board Dental Examination (INBDE)',
+          'Complete a clinical licensure examination for your state',
+          'Optional residency for specialties (orthodontics, oral surgery, etc.)'
+        ],
+        criticalJuniorHighSchoolPrep: 'DDS and DMD are the same degree with different names; both lead to licensure as a dentist.',
+        description: 'Doctoral oral-health training leading to licensure and (optionally) specialty residency.',
+        annualCostEstimate: '$40,000 - $80,000 / year'
+      }
+    ],
+    pros: [
+      'High income and strong practice-ownership / entrepreneurship options',
+      'Predictable schedules relative to many physician specialties',
+      'Clear 8-year timeline with no required residency for general dentistry',
+      'Tangible, hands-on work with lasting patient relationships'
+    ],
+    challenges: [
+      'High dental-school tuition and debt',
+      'Competitive admissions (DAT + GPA + shadowing)',
+      'Physically demanding, detail-intensive procedural work',
+      'Specialties require additional years of residency'
+    ],
+    comparisonPoints: {
+      autonomyLevel: 'Independent licensed practice; many own their practices',
+      callFrequency: 'Generally low; largely scheduled office hours',
+      trainingLength: '8 years (4 undergrad + 4 dental school)',
+      debtBurden: 'High tuition, offset by strong earnings and ownership potential'
+    },
+    lastVerified: '2026-09-04',
+    dataSources: [
+      { label: 'BLS — Dentists (median $176,110; +6% outlook 2024–34)', url: 'https://www.bls.gov/ooh/healthcare/dentists.htm' },
+      { label: 'CODA — Commission on Dental Accreditation', url: 'https://coda.ada.org/' },
+      { label: 'ADEA AADSAS — dental school application', url: 'https://www.adea.org/dental_education_pathways/aadsas/' }
+    ]
+  },
+
+  physical_therapist: {
+    id: 'physical_therapist',
+    title: 'Physical Therapist (DPT)',
+    shortTitle: 'Physical Therapist (DPT)',
+    roleDescription: 'A movement expert who helps patients recover from injury, manage chronic conditions, and improve mobility through hands-on treatment, therapeutic exercise, and education — in clinics, hospitals, sports, and rehabilitation settings.',
+    totalYearsAfterHighSchool: '7 Years (4 undergrad + 3-year DPT)',
+    averageSalary: 'Median $102,760/yr (BLS, May 2024)',
+    jobGrowth: '+12% for physical therapists, 2024–2034 (much faster than average)',
+    undergradMajorStrategy: 'Any major works with the prerequisites: Biology, Chemistry, Physics, Anatomy & Physiology, Psychology, and Statistics (kinesiology/exercise-science majors are common). DPT programs require observation hours under a licensed PT and use the PTCAS application; some require the GRE.',
+    dailyRoutine: 'Evaluating movement and function, designing and guiding rehab exercise, hands-on manual therapy, tracking progress, and educating patients on prevention and recovery across orthopedic, neurologic, pediatric, and sports settings.',
+    stages: [
+      {
+        stageNumber: 1,
+        stageName: 'High School Junior & Senior Years',
+        timeframe: 'Grades 11 & 12',
+        degreeEarned: 'High School Diploma',
+        keyRequirements: [
+          'Solid Biology, Physics, and Math foundation',
+          'Observe/volunteer with physical therapists in different settings',
+          'Sports, athletic training, or exercise activities build relevant background',
+          'Target colleges with pre-PT advising (often exercise/kinesiology programs)'
+        ],
+        criticalJuniorHighSchoolPrep: 'Start logging observation hours with a licensed PT — DPT programs require them, and different settings strengthen your application.',
+        description: 'Build a science-and-movement foundation and start observation hours.',
+        annualCostEstimate: '$0 (Public HS)'
+      },
+      {
+        stageNumber: 2,
+        stageName: 'Undergraduate College (Pre-PT)',
+        timeframe: '4 Years',
+        degreeEarned: 'Bachelor’s degree (any major)',
+        keyRequirements: [
+          'Complete prerequisites (Bio, Chem, Physics, Anatomy & Physiology, Psych, Stats)',
+          'Maintain a competitive GPA (3.4+ recommended)',
+          'Accumulate observation hours across PT settings',
+          'Apply through PTCAS; some programs require the GRE'
+        ],
+        criticalJuniorHighSchoolPrep: 'Prerequisites and required observation hours vary by DPT program — verify each school’s list early.',
+        description: 'Finish a bachelor’s while completing prerequisites and observation hours.',
+        annualCostEstimate: '$10,000 - $65,000 / year'
+      },
+      {
+        stageNumber: 3,
+        stageName: 'Doctor of Physical Therapy (DPT) & Licensure',
+        timeframe: '3 Years',
+        degreeEarned: 'DPT; licensed PT after NPTE',
+        keyRequirements: [
+          'Attend a CAPTE-accredited DPT program (didactic + full-time clinical internships)',
+          'Complete supervised clinical rotations',
+          'Pass the National Physical Therapy Examination (NPTE)',
+          'Optional residency/fellowship for specialization'
+        ],
+        criticalJuniorHighSchoolPrep: 'The DPT is a 3-year doctoral degree; entry-level PTs are doctors of physical therapy.',
+        description: 'Doctoral training in movement science leading to licensure to practice.',
+        annualCostEstimate: '$20,000 - $55,000 / year'
+      }
+    ],
+    pros: [
+      'Fast-growing field with strong demand',
+      'Hands-on, relationship-driven work helping people move and recover',
+      'Varied settings: outpatient, hospital, sports, pediatrics, home health',
+      'Doctoral credential in a 7-year timeline'
+    ],
+    challenges: [
+      'DPT tuition can produce debt high relative to PT salaries',
+      'Physically active, demanding work',
+      'Competitive admissions with required observation hours',
+      'Specialization requires additional residency/fellowship'
+    ],
+    comparisonPoints: {
+      autonomyLevel: 'Licensed independent evaluation and treatment; direct access varies by state',
+      callFrequency: 'Generally scheduled hours; setting-dependent',
+      trainingLength: '7 years (4 undergrad + 3-year DPT)',
+      debtBurden: 'Can be high relative to salary — weigh program cost carefully'
+    },
+    lastVerified: '2026-09-04',
+    dataSources: [
+      { label: 'BLS — Physical Therapists (median $102,760; +12% outlook 2024–34)', url: 'https://www.bls.gov/ooh/healthcare/physical-therapists.htm' },
+      { label: 'CAPTE — accreditation of PT programs', url: 'https://www.capteonline.org/' },
+      { label: 'PTCAS — DPT application', url: 'https://ptcas.liaisoncas.com/' }
+    ]
+  },
+
+  veterinarian: {
+    id: 'veterinarian',
+    title: 'Veterinarian (DVM)',
+    shortTitle: 'Veterinarian (DVM)',
+    roleDescription: 'A doctor of veterinary medicine who diagnoses and treats animals — companion pets, livestock, or exotics — performing exams and surgery, prescribing treatment, and advising owners. US veterinary schools are few and highly competitive.',
+    totalYearsAfterHighSchool: '8 Years (4 undergrad + 4 vet school)',
+    averageSalary: 'Median $130,100/yr (BLS, May 2024)',
+    jobGrowth: '+9% for veterinarians, 2024–2034 (much faster than average)',
+    undergradMajorStrategy: 'Any major with the prerequisites: Biology, General & Organic Chemistry, Physics, Biochemistry, and often Math/Statistics and English. Veterinary and animal experience hours (clinics, farms, shelters, research) are essential. Apply through VMCAS; GRE requirements vary by school.',
+    dailyRoutine: 'Examining animals, diagnosing illness and injury, performing surgery and dental work, vaccinating, running and interpreting diagnostics, prescribing medications, and counseling owners — sometimes across species and settings.',
+    stages: [
+      {
+        stageNumber: 1,
+        stageName: 'High School Junior & Senior Years',
+        timeframe: 'Grades 11 & 12',
+        degreeEarned: 'High School Diploma',
+        keyRequirements: [
+          'Strong Biology, Chemistry, and Math grades',
+          'Gain animal experience: volunteer at clinics, shelters, farms, or with a vet',
+          'Shadow veterinarians across practice types (small animal, large animal, exotic)',
+          'Target colleges with pre-vet advising and prerequisites'
+        ],
+        criticalJuniorHighSchoolPrep: 'US vet schools are few and extremely competitive — start logging diverse animal and veterinary experience hours as early as possible.',
+        description: 'Build the science foundation and accumulate varied animal/veterinary experience.',
+        annualCostEstimate: '$0 (Public HS)'
+      },
+      {
+        stageNumber: 2,
+        stageName: 'Undergraduate College (Pre-Vet)',
+        timeframe: '4 Years',
+        degreeEarned: 'Bachelor’s degree (any major)',
+        keyRequirements: [
+          'Complete prerequisites (Bio, Gen & Organic Chem, Physics, Biochem, Math/Stats)',
+          'Maintain a high GPA (vet admission is very competitive)',
+          'Accumulate substantial veterinary + animal experience hours',
+          'Apply through VMCAS; check each school’s GRE policy'
+        ],
+        criticalJuniorHighSchoolPrep: 'With so few US vet schools, a high GPA and deep, varied experience matter enormously.',
+        description: 'Earn a bachelor’s while completing prerequisites and extensive animal experience.',
+        annualCostEstimate: '$10,000 - $75,000 / year'
+      },
+      {
+        stageNumber: 3,
+        stageName: 'Veterinary School & Licensure',
+        timeframe: '4 Years',
+        degreeEarned: 'DVM (Doctor of Veterinary Medicine)',
+        keyRequirements: [
+          'Attend an AVMA COE–accredited veterinary program (basic sciences + clinical rotations)',
+          'Complete clinical training across species/systems',
+          'Pass the North American Veterinary Licensing Examination (NAVLE)',
+          'Optional internship/residency for specialties'
+        ],
+        criticalJuniorHighSchoolPrep: 'The DVM is a 4-year doctoral degree; general practice needs no residency, but specialties do.',
+        description: 'Doctoral veterinary training leading to licensure to practice.',
+        annualCostEstimate: '$25,000 - $65,000 / year (higher out-of-state)'
+      }
+    ],
+    pros: [
+      'Doctor-level medicine and surgery for animals in an 8-year timeline',
+      'Strong demand and faster-than-average growth',
+      'Varied settings and species; general practice needs no residency',
+      'Deeply rewarding for animal-focused students'
+    ],
+    challenges: [
+      'Very few US vet schools — admission is extremely competitive',
+      'High tuition and debt relative to veterinarian salaries',
+      'Emotionally demanding work, including end-of-life care',
+      'Extensive animal-experience hours required before applying'
+    ],
+    comparisonPoints: {
+      autonomyLevel: 'Independent licensed practice; often owns or leads a clinic',
+      callFrequency: 'Setting-dependent (emergency and large-animal practice can be higher)',
+      trainingLength: '8 years (4 undergrad + 4 vet school)',
+      debtBurden: 'Often high relative to salary — plan the finances carefully'
+    },
+    lastVerified: '2026-09-04',
+    dataSources: [
+      { label: 'BLS — Veterinarians (median $130,100; +9% outlook 2024–34)', url: 'https://www.bls.gov/ooh/healthcare/veterinarians.htm' },
+      { label: 'AVMA Council on Education — accredited vet schools', url: 'https://www.avma.org/education/center-for-veterinary-accreditation/accreditation-policies-and-procedures-avma-council-education-coe' },
+      { label: 'VMCAS — veterinary school application', url: 'https://www.aavmc.org/becoming-a-veterinarian/how-to-apply/' }
+    ]
   }
 };

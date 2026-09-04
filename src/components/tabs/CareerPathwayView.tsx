@@ -17,7 +17,18 @@ import { CAREER_PATHWAYS } from '../../data/careerPathways';
 import { CareerPathway } from '../../types';
 
 // Curated display order for the selector (general first, then specialized).
-const PATHWAY_ORDER = ['undecided', 'premed_general', 'anesthesiologist', 'nursing_general', 'crna'];
+const PATHWAY_ORDER = [
+  'undecided',
+  'premed_general',
+  'anesthesiologist',
+  'nursing_general',
+  'crna',
+  'physician_assistant',
+  'pharmacist',
+  'dentist',
+  'physical_therapist',
+  'veterinarian',
+];
 
 const orderedPathways = (): CareerPathway[] => {
   const all = CAREER_PATHWAYS;
