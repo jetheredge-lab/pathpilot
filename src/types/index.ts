@@ -192,6 +192,18 @@ export interface EssayDraft {
   lastEdited: string;
 }
 
+export type CourseLevel = 'regular' | 'honors' | 'ap' | 'ib' | 'dual';
+
+// A single planned/completed high-school course in the four-year planner.
+export interface CourseEntry {
+  id: string;
+  grade: number; // 9, 10, 11, 12
+  subject: string; // Science, Math, English, Social Studies, World Language, Elective, Other
+  name: string;
+  level: CourseLevel;
+  completed: boolean;
+}
+
 export interface AwardLetterGrant {
   id: string;
   name: string;

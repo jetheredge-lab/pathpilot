@@ -6,7 +6,8 @@ import {
   FinalFiveItem,
   EssayDraft,
   CampusVisit,
-  AwardLetter
+  AwardLetter,
+  CourseEntry
 } from '../types';
 import { COLLEGES_DATABASE } from '../data/colleges';
 import { DEFAULT_TIMELINE_TASKS } from '../data/timelineDefaults';
@@ -36,6 +37,8 @@ import {
   deleteCampusVisitApi,
   putAwardLetter,
   deleteAwardLetterApi,
+  putCourseEntry,
+  deleteCourseEntryApi,
 } from '../api/students';
 
 // Backend sync status, surfaced in the UI so the user knows their data is safe.
@@ -72,6 +75,9 @@ interface AppContextType {
   awardLetters: AwardLetter[];
   saveAwardLetter: (letter: AwardLetter) => void;
   deleteAwardLetter: (letterId: string) => void;
+  courseEntries: CourseEntry[];
+  saveCourseEntry: (course: CourseEntry) => void;
+  deleteCourseEntry: (courseId: string) => void;
   loadSampleData: () => void;
   resetAllData: () => void;
   exportDataJSON: () => string;
@@ -142,6 +148,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [essays, setEssays] = useState<EssayDraft[]>([]);
   const [campusVisits, setCampusVisits] = useState<CampusVisit[]>([]);
   const [awardLetters, setAwardLetters] = useState<AwardLetter[]>([]);
+  const [courseEntries, setCourseEntries] = useState<CourseEntry[]>([]);
   // Scorecard-discovered colleges (adapted to the College shape), merged into
   // the college pool so every `colleges.find(id)` resolves them.
   const [externalColleges, setExternalColleges] = useState<College[]>([]);
@@ -163,6 +170,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setEssays(b.essays);
     setCampusVisits(b.campusVisits);
     setAwardLetters(b.awardLetters ?? []);
+    setCourseEntries(b.courseEntries ?? []);
   };
 
   // Default-task ids are the same constants for everyone, but each task row is
@@ -483,6 +491,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     track(deleteAwardLetterApi(id, letterId));
   };
 
+  // ── Course entries ──
+  const saveCourseEntry = (course: CourseEntry) => {
+    const id = currentStudentId;
+    if (!id) return;
+    setCourseEntries((prev) => {
+      const idx = prev.findIndex((c) => c.id === course.id);
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = course;
+        return next;
+      }
+      return [...prev, course];
+    });
+    track(putCourseEntry(id, course));
+  };
+
+  const deleteCourseEntry = (courseId: string) => {
+    const id = currentStudentId;
+    if (!id) return;
+    setCourseEntries((prev) => prev.filter((c) => c.id !== courseId));
+    track(deleteCourseEntryApi(id, courseId));
+  };
+
   // ── Bulk operations (replace the whole current student) ──
   const bulkReplace = async (bundle: Partial<StudentBundle>) => {
     const id = currentStudentId;
@@ -513,6 +544,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       essays: SAMPLE_ESSAYS,
       campusVisits: [],
       awardLetters: [],
+      courseEntries: [],
     };
     applyBundle(sample as StudentBundle); // optimistic
     void bulkReplace(sample);
@@ -527,6 +559,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       essays: [],
       campusVisits: [],
       awardLetters: [],
+      courseEntries: [],
     };
     applyBundle(empty as StudentBundle);
     void bulkReplace(empty);
@@ -541,6 +574,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       essays,
       campusVisits,
       awardLetters,
+      courseEntries,
       exportedAt: new Date().toISOString(),
     };
     return JSON.stringify(backup, null, 2);
@@ -559,8 +593,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if ('essays' in parsed && !Array.isArray(parsed.essays)) return false;
       if ('campusVisits' in parsed && !Array.isArray(parsed.campusVisits)) return false;
       if ('awardLetters' in parsed && !Array.isArray(parsed.awardLetters)) return false;
+      if ('courseEntries' in parsed && !Array.isArray(parsed.courseEntries)) return false;
 
-      const knownKeys = ['profile', 'savedColleges', 'finalFive', 'timelineTasks', 'essays', 'campusVisits', 'awardLetters'];
+      const knownKeys = ['profile', 'savedColleges', 'finalFive', 'timelineTasks', 'essays', 'campusVisits', 'awardLetters', 'courseEntries'];
       if (!knownKeys.some((key) => key in parsed)) return false;
 
       const bundle: Partial<StudentBundle> = {
@@ -571,6 +606,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         essays: parsed.essays ?? essays,
         campusVisits: parsed.campusVisits ?? campusVisits,
         awardLetters: parsed.awardLetters ?? awardLetters,
+        courseEntries: parsed.courseEntries ?? courseEntries,
       };
       applyBundle(bundle as StudentBundle); // optimistic
       void bulkReplace(bundle);
@@ -632,6 +668,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         awardLetters,
         saveAwardLetter,
         deleteAwardLetter,
+        courseEntries,
+        saveCourseEntry,
+        deleteCourseEntry,
         loadSampleData,
         resetAllData,
         exportDataJSON,

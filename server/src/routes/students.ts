@@ -10,6 +10,7 @@ import {
   essayOut,
   visitOut,
   awardLetterOut,
+  courseEntryOut,
 } from '../serialize.js';
 
 export const studentsRouter = Router();
@@ -136,7 +137,17 @@ function buildChildCreates(body: Record<string, any>) {
         notes: a.notes ?? '',
       }))
     : [];
-  return { savedColleges, finalFive, timelineTasks, essays, campusVisits, awardLetters };
+  const courseEntries = Array.isArray(body.courseEntries)
+    ? body.courseEntries.map((c: any) => ({
+        id: c.id,
+        grade: c.grade ?? 9,
+        subject: c.subject ?? 'Other',
+        name: c.name ?? '',
+        level: c.level ?? 'regular',
+        completed: !!c.completed,
+      }))
+    : [];
+  return { savedColleges, finalFive, timelineTasks, essays, campusVisits, awardLetters, courseEntries };
 }
 
 // Load the full bundle for a student.
@@ -150,6 +161,7 @@ async function loadBundle(studentId: string) {
       essays: { orderBy: { createdAt: 'desc' } },
       campusVisits: { orderBy: { createdAt: 'desc' } },
       awardLetters: { orderBy: { createdAt: 'asc' } },
+      courseEntries: { orderBy: { createdAt: 'asc' } },
     },
   });
   if (!student) return null;
@@ -161,6 +173,7 @@ async function loadBundle(studentId: string) {
     essays: student.essays.map(essayOut),
     campusVisits: student.campusVisits.map(visitOut),
     awardLetters: student.awardLetters.map(awardLetterOut),
+    courseEntries: student.courseEntries.map(courseEntryOut),
   };
 }
 
@@ -191,6 +204,7 @@ studentsRouter.post('/', async (req: AuthedRequest, res) => {
       essays: { create: children.essays },
       campusVisits: { create: children.campusVisits },
         awardLetters: { create: children.awardLetters },
+        courseEntries: { create: children.courseEntries },
     } as unknown as Prisma.StudentCreateInput,
   });
   const bundle = await loadBundle(student.id);
@@ -237,6 +251,7 @@ studentsRouter.put('/:id/state', async (req: AuthedRequest, res) => {
     prisma.essayDraft.deleteMany({ where: { studentId: id } }),
     prisma.campusVisit.deleteMany({ where: { studentId: id } }),
     prisma.awardLetter.deleteMany({ where: { studentId: id } }),
+    prisma.courseEntry.deleteMany({ where: { studentId: id } }),
     prisma.student.update({
       where: { id },
       data: {
@@ -247,6 +262,7 @@ studentsRouter.put('/:id/state', async (req: AuthedRequest, res) => {
         essays: { create: children.essays },
         campusVisits: { create: children.campusVisits },
         awardLetters: { create: children.awardLetters },
+        courseEntries: { create: children.courseEntries },
       } as unknown as Prisma.StudentUpdateInput,
     }),
   ]);
@@ -468,5 +484,33 @@ studentsRouter.delete('/:id/award-letters/:letterId', async (req: AuthedRequest,
   const id = await ownStudentId(req, res);
   if (!id) return;
   await prisma.awardLetter.deleteMany({ where: { id: req.params.letterId, studentId: id } });
+  res.json({ ok: true });
+});
+
+// ── Course entries (4-year course planner; upsert by client id) ──
+
+studentsRouter.put('/:id/courses/:courseId', async (req: AuthedRequest, res) => {
+  const id = await ownStudentId(req, res);
+  if (!id) return;
+  const c = (req.body ?? {}) as any;
+  const courseId = req.params.courseId;
+  const fields = {
+    grade: c.grade ?? 9,
+    subject: c.subject ?? 'Other',
+    name: c.name ?? '',
+    level: c.level ?? 'regular',
+    completed: !!c.completed,
+  };
+  const existing = await prisma.courseEntry.findFirst({ where: { id: courseId, studentId: id }, select: { id: true } });
+  const entry = existing
+    ? await prisma.courseEntry.update({ where: { id: courseId }, data: fields })
+    : await prisma.courseEntry.create({ data: { id: courseId, studentId: id, ...fields } });
+  res.json({ courseEntry: courseEntryOut(entry) });
+});
+
+studentsRouter.delete('/:id/courses/:courseId', async (req: AuthedRequest, res) => {
+  const id = await ownStudentId(req, res);
+  if (!id) return;
+  await prisma.courseEntry.deleteMany({ where: { id: req.params.courseId, studentId: id } });
   res.json({ ok: true });
 });

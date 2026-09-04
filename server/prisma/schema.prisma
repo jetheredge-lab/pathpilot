@@ -89,6 +89,7 @@ model Student {
   essays        EssayDraft[]
   campusVisits  CampusVisit[]
   awardLetters  AwardLetter[]
+  courseEntries CourseEntry[]
 
   @@index([userId])
   @@map("students")
@@ -166,6 +167,23 @@ model EssayDraft {
 
   @@index([studentId])
   @@map("essay_drafts")
+}
+
+model CourseEntry {
+  // id is client-provided (unique per creation).
+  id        String   @id
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  grade     Int // 9, 10, 11, 12
+  subject   String   @default("Other") // Science, Math, English, etc.
+  name      String
+  level     String   @default("regular") // regular | honors | ap | ib | dual
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([studentId])
+  @@map("course_entries")
 }
 
 model AwardLetter {

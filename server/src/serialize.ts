@@ -7,6 +7,7 @@ import type {
   EssayDraft,
   CampusVisit,
   AwardLetter,
+  CourseEntry,
 } from '@prisma/client';
 
 // Profile fields the client may set on a Student (whitelist for writes).
@@ -120,6 +121,17 @@ export function awardLetterOut(a: AwardLetter) {
     loanParentPlus: a.loanParentPlus,
     loanOther: a.loanOther,
     notes: a.notes,
+  };
+}
+
+export function courseEntryOut(c: CourseEntry) {
+  return {
+    id: c.id,
+    grade: c.grade,
+    subject: c.subject,
+    name: c.name,
+    level: c.level,
+    completed: c.completed,
   };
 }
 

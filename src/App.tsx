@@ -14,6 +14,7 @@ import { ResumeBuilderView } from './components/tabs/ResumeBuilderView';
 import { EssayStudioView } from './components/tabs/EssayStudioView';
 import { CampusVisitsView } from './components/tabs/CampusVisitsView';
 import { AwardLettersView } from './components/tabs/AwardLettersView';
+import { CoursePlannerView } from './components/tabs/CoursePlannerView';
 import { GraduationCap, Heart, Sparkles } from 'lucide-react';
 
 const AppContent: React.FC = () => {
@@ -36,6 +37,7 @@ const AppContent: React.FC = () => {
         {activeTab === 'essays' && <EssayStudioView />}
         {activeTab === 'campus_visits' && <CampusVisitsView />}
         {activeTab === 'award_letters' && <AwardLettersView />}
+        {activeTab === 'course_planner' && <CoursePlannerView />}
       </main>
 
       {/* Footer */}

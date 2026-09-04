@@ -16,7 +16,8 @@ import {
   Stethoscope,
   LogOut,
   Trash2,
-  Scale
+  Scale,
+  CalendarRange
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
@@ -33,7 +34,8 @@ export type TabType =
   | 'resume' 
   | 'essays'
   | 'campus_visits'
-  | 'award_letters';
+  | 'award_letters'
+  | 'course_planner';
 
 interface NavbarProps {
   activeTab: TabType;
@@ -101,6 +103,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
       badge: `${finalFive.length}/5`
     },
     { id: 'timeline', label: 'Timeline & Deadlines', icon: <Calendar className="w-4 h-4" /> },
+    { id: 'course_planner', label: 'Course Planner', icon: <CalendarRange className="w-4 h-4 text-indigo-600" /> },
     { id: 'profile', label: 'Student Portfolio', icon: <User className="w-4 h-4" /> },
     { id: 'resume', label: 'Resume & Brag Sheet', icon: <FileText className="w-4 h-4" /> },
     { id: 'essays', label: 'Essay & Letter Studio', icon: <PenTool className="w-4 h-4" /> },
