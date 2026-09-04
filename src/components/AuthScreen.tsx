@@ -167,6 +167,11 @@ export const AuthScreen: React.FC = () => {
         <p className="text-center text-xs text-slate-400 mt-6">
           Pre-health pathway planning for high school students and their families.
         </p>
+        <p className="text-center text-xs text-slate-400 mt-2">
+          <a href="/privacy" className="hover:text-slate-600">Privacy</a>
+          <span className="mx-1.5">·</span>
+          <a href="/terms" className="hover:text-slate-600">Terms</a>
+        </p>
       </div>
     </div>
   );
