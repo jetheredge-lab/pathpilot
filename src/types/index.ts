@@ -1,4 +1,13 @@
-export type CareerGoal = 'anesthesiologist' | 'crna' | 'undecided' | 'premed_general' | 'nursing_general';
+// A pathway id, resolved against the CAREER_PATHWAYS data rather than a fixed
+// union — so new pathways can be added as data without a code/type change.
+export type CareerGoal = string;
+
+// A citation for the facts in a pathway (salary, outlook, prerequisites).
+// Non-negotiable: every pathway carries sources + a lastVerified date.
+export interface PathwaySource {
+  label: string;
+  url: string;
+}
 
 export interface StudentProfile {
   id: string;
@@ -126,6 +135,9 @@ export interface CareerPathway {
     trainingLength: string;
     debtBurden: string;
   };
+  // Where the salary/outlook/prerequisite facts come from, and when last checked.
+  dataSources?: PathwaySource[];
+  lastVerified?: string; // ISO date, e.g. "2026-09-04"
 }
 
 export interface TimelineTask {

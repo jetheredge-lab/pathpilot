@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { ActivityItem, AwardItem, CareerGoal } from '../../types';
+import { CAREER_PATHWAYS } from '../../data/careerPathways';
 import { Modal } from '../common/Modal';
 
 export const ProfileView: React.FC = () => {
@@ -366,11 +367,9 @@ export const ProfileView: React.FC = () => {
               onChange={(e) => updateProfile({ careerGoal: e.target.value as CareerGoal })}
               className="w-full text-xs font-bold p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 bg-slate-50 text-slate-800"
             >
-              <option value="crna">🩺 Nurse Anesthetist (CRNA) — Direct-Entry BSN</option>
-              <option value="anesthesiologist">🔬 Physician Anesthesiologist (MD/DO) — Pre-Med</option>
-              <option value="premed_general">🧬 Pre-Med / Biology General</option>
-              <option value="nursing_general">💉 Nursing (BSN) General</option>
-              <option value="undecided">🤔 Undecided Healthcare Explorer</option>
+              {Object.values(CAREER_PATHWAYS).map((p) => (
+                <option key={p.id} value={p.id}>{p.title}</option>
+              ))}
             </select>
           </div>
 

@@ -14,6 +14,7 @@ import {
   AlertCircle 
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { CAREER_PATHWAYS } from '../../data/careerPathways';
 import { EssayDraft } from '../../types';
 import { COMMON_APP_PROMPTS, SUPPLEMENTAL_TEMPLATES, RECOMMENDATION_EMAIL_TEMPLATE } from '../../data/essayPrompts';
 import { Modal } from '../common/Modal';
@@ -94,7 +95,7 @@ export const EssayStudioView: React.FC = () => {
   const personalizedRecLetter = RECOMMENDATION_EMAIL_TEMPLATE
     .replace('[Student Full Name]', profile.fullName || '[Your Son\'s Name]')
     .replace('[Grad Year]', String(profile.gradYear || 2028))
-    .replace('[Pre-Med / Direct-Entry Nursing / Healthcare]', profile.careerGoal === 'crna' ? 'Direct-Entry Nursing (BSN) and Nurse Anesthesia (CRNA)' : 'Pre-Medical Sciences and Anesthesiology (MD/DO)')
+    .replace('[Pre-Med / Direct-Entry Nursing / Healthcare]', (CAREER_PATHWAYS[profile.careerGoal] || CAREER_PATHWAYS.crna).title)
     .replace('[Date, e.g., November 1st]', earliestDeadline);
 
   return (

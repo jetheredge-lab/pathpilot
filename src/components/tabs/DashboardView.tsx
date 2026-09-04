@@ -243,7 +243,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ setActiveTab }) =>
               <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-100 col-span-2 sm:col-span-1">
                 <span className="text-[11px] font-semibold text-slate-400 block">High School Strategy</span>
                 <span className="text-xs font-bold text-brand-700 mt-0.5 block">
-                  {profile.careerGoal === 'crna' ? 'Direct-Entry BSN Focus' : 'Pre-Med / Biology Focus'}
+                  {careerInfo.shortTitle}
                 </span>
               </div>
             </div>

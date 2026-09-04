@@ -15,14 +15,16 @@ import {
   MapPin
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { CAREER_PATHWAYS } from '../../data/careerPathways';
 import { jsPDF } from 'jspdf';
 
 export const ResumeBuilderView: React.FC = () => {
   const { profile, finalFive, colleges } = useApp();
   const [resumeMode, setResumeMode] = useState<'standard' | 'bragsheet'>('bragsheet');
   const [copied, setCopied] = useState(false);
+  const objectivePathway = CAREER_PATHWAYS[profile.careerGoal] || CAREER_PATHWAYS.crna;
   const [customObjective, setCustomObjective] = useState(
-    `Dedicated high school junior aiming to pursue a ${profile.careerGoal === 'crna' ? 'Direct-Entry Bachelor of Science in Nursing (BSN)' : 'Pre-Medical / Biological Sciences track'} with long-term aspirations of becoming a ${profile.careerGoal === 'crna' ? 'Certified Registered Nurse Anesthetist (CRNA)' : 'Board-Certified Physician Anesthesiologist (MD)'}. Strong academic background in AP science and mathematics paired with 65+ hours of active hospital clinical volunteering and surgical shadowing.`
+    `Dedicated high school junior on the ${objectivePathway.title} pathway, with long-term aspirations of becoming a ${objectivePathway.shortTitle}. Strong academic background in AP science and mathematics paired with 65+ hours of active hospital clinical volunteering and shadowing.`
   );
 
   const resumeRef = useRef<HTMLDivElement>(null);
