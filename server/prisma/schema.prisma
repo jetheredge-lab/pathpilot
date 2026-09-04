@@ -15,6 +15,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Cached College Scorecard financials, keyed by IPEDS UNITID (= Scorecard id).
+// Global (not per-user); refreshed from the API when stale to respect limits.
+model CollegeFinancials {
+  unitId    Int      @id
+  data      Json
+  fetchedAt DateTime @default(now())
+
+  @@map("college_financials")
+}
+
 model User {
   id            String    @id @default(cuid())
   email         String    @unique

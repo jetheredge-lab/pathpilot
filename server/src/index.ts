@@ -6,6 +6,7 @@ import { authRouter } from './routes/auth.js';
 import { oauthRouter } from './routes/oauth.js';
 import { studentsRouter } from './routes/students.js';
 import { billingRouter, billingWebhookHandler } from './routes/billing.js';
+import { scorecardRouter } from './routes/scorecard.js';
 import { requireAuth } from './auth.js';
 
 const app = express();
@@ -45,6 +46,7 @@ app.use('/api/auth', authLimiter, authRouter);
 app.use('/api/auth', oauthRouter);
 app.use('/api/students', requireAuth, studentsRouter);
 app.use('/api/billing', requireAuth, billingRouter);
+app.use('/api/scorecard', scorecardRouter);
 
 const PORT = Number(process.env.PORT) || 4100;
 app.listen(PORT, () => {

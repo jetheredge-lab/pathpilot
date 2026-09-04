@@ -23,6 +23,7 @@ import { useApp } from '../../context/AppContext';
 import { College, AdmissionChance } from '../../types';
 import { getAdmissionChance } from '../../data/colleges';
 import { Modal } from '../common/Modal';
+import { NetPriceSection } from '../common/NetPriceSection';
 import { TabType } from '../Navbar';
 
 interface CollegeSearchViewProps {
@@ -402,6 +403,9 @@ export const CollegeSearchView: React.FC<CollegeSearchViewProps> = ({ setActiveT
               <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Overview</h4>
               <p className="text-xs sm:text-sm text-slate-700 mt-1 leading-relaxed">{selectedCollegeForModal.summary}</p>
             </div>
+
+            {/* Net price by income (College Scorecard) */}
+            <NetPriceSection collegeName={selectedCollegeForModal.name} state={selectedCollegeForModal.state} />
 
             {/* Pathway fit — pre-med (physician) and nursing notes for this college */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
