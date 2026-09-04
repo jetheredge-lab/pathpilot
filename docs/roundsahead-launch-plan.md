@@ -26,7 +26,7 @@ Cloudflare Tunnel + Access.
 
 ## Phase 0 — Hygiene (do first, it's an hour)
 
-- [ ] Scrub `README.md`: remove local path `/Users/jeremyetheredge/Desktop/College Prep`
+- [x] Scrub `README.md`: no hardcoded local path remains. (Working copy now lives at `~/dev/roundsahead`.)
 - [ ] Scrub README language: "your son's readiness score" → neutral phrasing
 - [ ] Rename in `package.json`: `college-prep-navigator` → `roundsahead` (see Phase 0b)
 - [ ] Verify no secrets in git history now that the repo is public:
