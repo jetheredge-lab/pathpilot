@@ -107,3 +107,32 @@ describe('computeReadinessScore', () => {
     expect(computeReadinessScore(strong, 5, 3)).toBe(100);
   });
 });
+
+describe('pathway-aware weighting', () => {
+  it('weights testing lower for clinical-intensive pathways', () => {
+    const p = makeProfile({ satScore: 1200 });
+    expect(computeReadinessScore(p, 0, 0, 'crna')).toBe(10); // intensive testing = 10
+    expect(computeReadinessScore(p, 0, 0, 'premed_general')).toBe(15); // default testing = 15
+  });
+
+  it('requires more clinical hours for full credit on intensive pathways', () => {
+    // Intensive: full at 75, partial (round(20*0.66)=13) below it
+    expect(computeReadinessScore(makeProfile({ clinicalHours: 50 }), 0, 0, 'crna')).toBe(13);
+    expect(computeReadinessScore(makeProfile({ clinicalHours: 75 }), 0, 0, 'crna')).toBe(20);
+    // Default: full at 50
+    expect(computeReadinessScore(makeProfile({ clinicalHours: 50 }), 0, 0, 'premed_general')).toBe(15);
+  });
+
+  it('still caps at 100 for a maxed intensive-pathway profile', () => {
+    const strong = makeProfile({
+      unweightedGpa: 4.0,
+      weightedGpa: 4.5,
+      satScore: 1550,
+      clinicalHours: 200,
+      communityServiceHours: 100,
+      extracurriculars: makeActivities(5),
+    });
+    // 20 gpa + 10 testing + 20 clinical + 5 cs + 15 act + 15 f5 + 15 essay = 100
+    expect(computeReadinessScore(strong, 5, 3, 'crna')).toBe(100);
+  });
+});

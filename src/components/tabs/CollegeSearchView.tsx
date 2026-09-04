@@ -312,7 +312,7 @@ export const CollegeSearchView: React.FC<CollegeSearchViewProps> = ({ setActiveT
                   )}
                   {college.preMedAdvisingRank && (
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 border border-blue-200">
-                      🔬 Top Pre-Med
+                      🔬 Pre-med advising
                     </span>
                   )}
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">
@@ -403,12 +403,12 @@ export const CollegeSearchView: React.FC<CollegeSearchViewProps> = ({ setActiveT
               <p className="text-xs sm:text-sm text-slate-700 mt-1 leading-relaxed">{selectedCollegeForModal.summary}</p>
             </div>
 
-            {/* Pre-Med & Nursing Deep Dive */}
+            {/* Pathway fit — pre-med (physician) and nursing notes for this college */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="p-4 rounded-2xl bg-blue-50 border border-blue-100">
                 <h4 className="text-xs font-bold text-blue-900 flex items-center space-x-2">
                   <Stethoscope className="w-4 h-4 text-blue-700" />
-                  <span>Pre-Med / Anesthesia Track</span>
+                  <span>Pre-Med / Physician Track</span>
                 </h4>
                 <p className="text-xs text-blue-800 mt-2">{selectedCollegeForModal.preMedNotes}</p>
               </div>
@@ -416,7 +416,7 @@ export const CollegeSearchView: React.FC<CollegeSearchViewProps> = ({ setActiveT
               <div className="p-4 rounded-2xl bg-purple-50 border border-purple-100">
                 <h4 className="text-xs font-bold text-purple-900 flex items-center space-x-2">
                   <GraduationCap className="w-4 h-4 text-purple-700" />
-                  <span>Direct-Entry BSN / CRNA Track</span>
+                  <span>Nursing (BSN) / CRNA Track</span>
                 </h4>
                 <p className="text-xs text-purple-800 mt-2">{selectedCollegeForModal.nursingNotes}</p>
               </div>
