@@ -24,35 +24,16 @@ import {
 // Required so the OAuth popup can hand control back to the app.
 WebBrowser.maybeCompleteAuthSession();
 
+const GOOGLE_BTN_CLASS =
+  'mt-3 items-center rounded-xl border border-slate-300 py-3.5 active:opacity-80';
+
 export default function SignIn() {
-  const { signIn, signUp, signInWithApple, signInWithGoogleToken } = useAuth();
+  const { signIn, signUp, signInWithApple } = useAuth();
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Google identity-token request. Returns an id_token we exchange server-side.
-  const [googleRequest, googleResponse, googlePrompt] = Google.useIdTokenAuthRequest({
-    iosClientId: GOOGLE_IOS_CLIENT_ID,
-    androidClientId: GOOGLE_ANDROID_CLIENT_ID,
-    webClientId: GOOGLE_WEB_CLIENT_ID,
-  });
-
-  useEffect(() => {
-    if (googleResponse?.type !== 'success') return;
-    const idToken = googleResponse.params?.id_token;
-    if (!idToken) {
-      setError('Google sign-in did not return a token.');
-      return;
-    }
-    setError(null);
-    setBusy(true);
-    signInWithGoogleToken(idToken)
-      .catch((e) => setError(e instanceof Error ? e.message : 'Google sign-in failed'))
-      .finally(() => setBusy(false));
-    // On success the root navigator redirects into the app.
-  }, [googleResponse, signInWithGoogleToken]);
 
   const submit = async () => {
     setError(null);
@@ -80,17 +61,6 @@ export default function SignIn() {
     } finally {
       setBusy(false);
     }
-  };
-
-  const onGoogle = () => {
-    if (!googleNativeConfigured) {
-      Alert.alert(
-        'Google sign-in',
-        'Google sign-in needs OAuth client IDs configured for the app. Use email + password for now.',
-      );
-      return;
-    }
-    googlePrompt();
   };
 
   return (
@@ -177,14 +147,76 @@ export default function SignIn() {
           />
         ) : null}
 
-        <Pressable
-          className="mt-3 items-center rounded-xl border border-slate-300 py-3.5 active:opacity-80"
-          disabled={busy || (googleNativeConfigured && !googleRequest)}
-          onPress={onGoogle}
-        >
-          <Text className="text-base font-semibold text-ink">Continue with Google</Text>
-        </Pressable>
+        {/* The Google request hook validates its client IDs eagerly, so it must
+            only be mounted when Google is actually configured. */}
+        {googleNativeConfigured ? (
+          <GoogleButton busy={busy} setBusy={setBusy} setError={setError} />
+        ) : (
+          <GoogleUnavailableButton disabled={busy} />
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
+  );
+}
+
+// Owns the expo-auth-session Google request. Mounted only when at least one
+// Google client ID is configured (see the guard in SignIn).
+function GoogleButton({
+  busy,
+  setBusy,
+  setError,
+}: {
+  busy: boolean;
+  setBusy: (v: boolean) => void;
+  setError: (v: string | null) => void;
+}) {
+  const { signInWithGoogleToken } = useAuth();
+  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+    iosClientId: GOOGLE_IOS_CLIENT_ID,
+    androidClientId: GOOGLE_ANDROID_CLIENT_ID,
+    webClientId: GOOGLE_WEB_CLIENT_ID,
+  });
+
+  useEffect(() => {
+    if (response?.type !== 'success') return;
+    const idToken = response.params?.id_token;
+    if (!idToken) {
+      setError('Google sign-in did not return a token.');
+      return;
+    }
+    setError(null);
+    setBusy(true);
+    signInWithGoogleToken(idToken)
+      .catch((e) => setError(e instanceof Error ? e.message : 'Google sign-in failed'))
+      .finally(() => setBusy(false));
+    // On success the root navigator redirects into the app.
+  }, [response, signInWithGoogleToken, setBusy, setError]);
+
+  return (
+    <Pressable
+      className={GOOGLE_BTN_CLASS}
+      disabled={busy || !request}
+      onPress={() => promptAsync()}
+    >
+      <Text className="text-base font-semibold text-ink">Continue with Google</Text>
+    </Pressable>
+  );
+}
+
+// Shown when no Google client IDs are configured — tapping explains why.
+function GoogleUnavailableButton({ disabled }: { disabled: boolean }) {
+  return (
+    <Pressable
+      className={GOOGLE_BTN_CLASS}
+      disabled={disabled}
+      onPress={() =>
+        Alert.alert(
+          'Google sign-in',
+          'Google sign-in needs OAuth client IDs configured for the app. Use email + password for now.',
+        )
+      }
+    >
+      <Text className="text-base font-semibold text-ink">Continue with Google</Text>
+    </Pressable>
   );
 }
