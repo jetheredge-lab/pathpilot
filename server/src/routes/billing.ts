@@ -13,7 +13,11 @@ const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET ?? '';
 // One-time license grants access for this many months.
 const ENTITLEMENT_MONTHS = Number(process.env.ENTITLEMENT_MONTHS ?? 12);
 
-const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null;
+// Pin an API version new enough to accept `managed_payments` (which we disable
+// per session — we don't need Stripe's Managed Payments for a one-time buy).
+const stripe = STRIPE_SECRET_KEY
+  ? new Stripe(STRIPE_SECRET_KEY, { apiVersion: '2025-03-31.basil' as Stripe.StripeConfig['apiVersion'] })
+  : null;
 // Checkout needs a secret key + a price; the webhook additionally needs its secret.
 const billingEnabled = Boolean(stripe && STRIPE_PRICE_ID && APP_BASE_URL);
 
@@ -117,7 +121,7 @@ billingRouter.post('/checkout', async (req: AuthedRequest, res) => {
     res.status(401).json({ error: 'Not authenticated' });
     return;
   }
-  const session = await stripe.checkout.sessions.create({
+  const params: Stripe.Checkout.SessionCreateParams = {
     mode: 'payment',
     line_items: [{ price: STRIPE_PRICE_ID, quantity: 1 }],
     client_reference_id: user.id,
@@ -128,7 +132,10 @@ billingRouter.post('/checkout', async (req: AuthedRequest, res) => {
     allow_promotion_codes: true,
     success_url: `${APP_BASE_URL}/app/?upgraded=1`,
     cancel_url: `${APP_BASE_URL}/app/?checkout=cancelled`,
-  });
+  };
+  // Not in the SDK types yet; disables Stripe Managed Payments for this session.
+  (params as Record<string, unknown>).managed_payments = { enabled: false };
+  const session = await stripe.checkout.sessions.create(params);
   res.json({ url: session.url });
 });
 
